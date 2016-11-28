@@ -16,11 +16,10 @@ class SeekerCompass : MKPointAnnotation, PowerUp {
     static let DEFAULT_ROLE  = "Seeker"
     static let DEFAULT_DESC  = "Shows the direction the hider is at for a period of time"
     
+    var id : Int
     var name : String
     var role : String
     var duration : Int
-    var expireTime : Int
-    var energyCost : Int
     var isActive : Bool
     var powerDescription : String
     var icon : UIImage
@@ -30,9 +29,9 @@ class SeekerCompass : MKPointAnnotation, PowerUp {
         self.role        = SeekerCompass.DEFAULT_ROLE
         self.powerDescription = SeekerCompass.DEFAULT_DESC
         
+        
+        self.id = 0
         self.duration    = 60 * 3
-        self.expireTime  = 60 * 3
-        self.energyCost  = 60 * 3
         self.isActive    = false
         self.icon        = UIImage(named: "compass")!
         super.init()
@@ -40,20 +39,18 @@ class SeekerCompass : MKPointAnnotation, PowerUp {
         
     }
     
-    required init(duration: Int, expireTime: Int, energyCost: Int, isActive: Bool) throws{
+    required init(id: Int, duration: Int, isActive: Bool) throws{
         self.name        = SeekerCompass.DEFAULT_NAME
         self.role        = SeekerCompass.DEFAULT_ROLE
         self.powerDescription = SeekerCompass.DEFAULT_DESC
         self.icon        = UIImage(named: "compass")!
         
+        self.id = id
         
-        
-        if(duration <= 0 || expireTime <= 0 || energyCost <= 0){
+        if(duration <= 0 ){
             throw PowerUpError.illegalArgument
         }else{
             self.duration    = duration
-            self.expireTime  = expireTime
-            self.energyCost  = energyCost
             self.isActive    = isActive
         }
         super.init()

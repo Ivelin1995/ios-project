@@ -43,7 +43,6 @@
 		BCE4DF011DC7EC92001E2F34 /* Player.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCE4DEFE1DC7EC92001E2F34 /* Player.swift */; };
 		BCE4DF031DC7ECEC001E2F34 /* PlayerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCE4DF021DC7ECEC001E2F34 /* PlayerTests.swift */; };
 		D735D6B31DB575A300876261 /* TileTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = D735D6B21DB575A300876261 /* TileTest.swift */; };
-		EBCB1B01DBC26549FFBF53AF /* Pods_ios_project.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 121483E64D7F1A6918FFEDBD /* Pods_ios_project.framework */; };
 		ED6387601DB583E100FEEFC7 /* Seeker.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED63875F1DB583E100FEEFC7 /* Seeker.swift */; };
 		ED6387611DB583E100FEEFC7 /* Seeker.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED63875F1DB583E100FEEFC7 /* Seeker.swift */; };
 		ED6387671DB5844C00FEEFC7 /* Role.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED6387661DB5844C00FEEFC7 /* Role.swift */; };
@@ -122,7 +121,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EBCB1B01DBC26549FFBF53AF /* Pods_ios_project.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

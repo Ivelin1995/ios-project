@@ -26,9 +26,7 @@ class GameViewController: UIViewController, MKMapViewDelegate {
     var locationUpdatedObserver : AnyObject?
     var temppin  = CustomPointAnnotation()
     var temppin2  = CustomPointAnnotation()
-    var invsablePower = HiderInvisibility()
-    var compassPower = SeekerCompass()
-    
+    var numberOfPower : Int = 10
     //center pin
     var centerPin = CustomPointAnnotation()
     
@@ -92,16 +90,29 @@ class GameViewController: UIViewController, MKMapViewDelegate {
         let ry = self.map.bottomRightPoint.y
         let ly = self.map.topLeftPoint.y
         
-        //Generate random coordinate for the powerup
-        let r  = self.randomIn(lx,rx)
-        let l  = self.randomIn(ly,ry)
-        self.tempLocation  = CLLocationCoordinate2D(latitude: r, longitude: l)
+        for i in 0 ... numberOfPower{
+            //Generate random coordinate for the powerup
+            let r  = self.randomIn(lx,rx)
+            let l  = self.randomIn(ly,ry)
+            self.tempLocation  = CLLocationCoordinate2D(latitude: r, longitude: l)
+            
+            let diceRoll = Int(arc4random_uniform(2))
+            if(diceRoll == 0){
+                let invsablePower = try! HiderInvisibility(id: i,duration: 30,isActive: true)
+                //Add the power up to the map
+                invsablePower.coordinate = self.tempLocation!
+                self.MapView.addAnnotation(invsablePower)
+
+            
+            }else{
+            
+                let compassPower = try! SeekerCompass(id: i,duration: 30,isActive: true)
+                //Add the power up to the map
+                compassPower.coordinate = self.tempLocation!
+                self.MapView.addAnnotation(compassPower)
+            }
         
-        //Add the power up to the map
-        self.invsablePower.coordinate = self.tempLocation!
-        self.MapView.addAnnotation(self.invsablePower)
-        
-        
+        }
         
         //2nd power up
         //Get x and y coordinates of corners of the map
@@ -114,10 +125,6 @@ class GameViewController: UIViewController, MKMapViewDelegate {
         let r2  = self.randomIn(lx2,rx2)
         let l2  = self.randomIn(ly2,ry2)
         self.tempLocation  = CLLocationCoordinate2D(latitude: r2, longitude: l2)
-        
-        //Add the power up to the map
-        self.compassPower.coordinate = self.tempLocation!
-        self.MapView.addAnnotation(self.compassPower)
         
         
         
@@ -217,6 +224,7 @@ class GameViewController: UIViewController, MKMapViewDelegate {
             self.MapView.removeAnnotation(index!)
         }
         
+        pins.removeAll()
         // loop through each device and retrieve device id, lat and long, store in locations array
         for child in locations.children.allObjects as? [FIRDataSnapshot] ?? [] {
             guard child.key != "(null" else { return }
@@ -227,23 +235,58 @@ class GameViewController: UIViewController, MKMapViewDelegate {
             
             // ADDING OTHER DEVICES FROM DB TO THE MAP AND SAVING THAT LOCATION INTO GLOBAL VAR PINS
             if childId != deviceId {
+                
                 var tempLocation : CLLocationCoordinate2D
                 let temppin2  = CustomPointAnnotation()
                 tempLocation  = CLLocationCoordinate2D(latitude: childLat, longitude: childLong)
+                
                 temppin2.coordinate = tempLocation
                 temppin2.playerRole = "playerTwo"
                 pins.append(temppin2)
                 // add arrows pointing to all devices
                 
                 self.MapView.addAnnotation(temppin2)
-                self.UnoDirections(pointA: self.temppin, pointB: temppin2);
+                
             }
         }
+        pointToNearestPin()
         
         print("***** updated locations array ****** \(self.locations)")
         
         // call functions once array of locations is updated
         
+    }
+    
+    func pointToNearestPin(){
+        
+        
+        if(pins.count > 0){
+            // CLLocation of user pin
+            let userLoc = CLLocation(latitude: temppin.coordinate.latitude, longitude: temppin.coordinate.longitude)
+            
+            // pin of current smallest distance
+            let smallestDistancePin = CustomPointAnnotation()
+            var smallestDistance = 10000000.0
+            for pin in pins{
+            
+                // create a CLLocation for each pin
+                let loc = CLLocation(latitude: (pin?.coordinate.latitude)!, longitude: (pin?.coordinate.longitude)!)
+                
+                // get the distance between pins
+                let distance = userLoc.distance(from: loc)
+                
+                if(smallestDistance > distance){
+                    smallestDistance = distance
+                    
+                    // assign pin to smallest distance pin
+                    let tempLocation  = loc.coordinate
+                    smallestDistancePin.coordinate = tempLocation
+                }
+            }
+            
+            // point arrow to smallest distance pin
+            self.UnoDirections(pointA: self.temppin, pointB: smallestDistancePin);
+        }
     }
     
     
