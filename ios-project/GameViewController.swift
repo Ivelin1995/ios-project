@@ -218,7 +218,8 @@ class GameViewController: UIViewController, MKMapViewDelegate {
     // remove the pin(power up), when it is used or collected by a player, from the map
     func activePowerUp(id: Int) {
         let thePowerUp = try! HiderInvisibility(id: id, duration: 30, isActive: false)
-        self.MapView.removeAnnotation(powerUp[id])
+        thePowerUp.coordinate = powerUp[id]!
+        self.MapView.removeAnnotation(thePowerUp)
     }
 
     
@@ -285,9 +286,33 @@ class GameViewController: UIViewController, MKMapViewDelegate {
         
     }
     
+    //checks if a given power up id is within 5 meters of the user
+    func powerUpDistanceTrigger(powerUpId : Int){
         
         
         
+        // CLLocation of user pin
+        let userLoc = CLLocation(latitude: temppin.coordinate.latitude, longitude: temppin.coordinate.longitude)
+
+        let powerUpLocation = CLLocation(latitude: (powerUp[powerUpId]?.latitude)!, longitude: (powerUp[powerUpId]?.longitude)!)
+                
+        // get the distance between the user and the power up
+        let distance = userLoc.distance(from: powerUpLocation)
+        
+        
+        print("DISTANCE:" + String(distance) )
+        
+        print("USERLOCATION:" + String(userLoc.coordinate.latitude) + ":" + String(userLoc.coordinate.longitude) )
+        print("POWERUPLOCATION:" + String(powerUpLocation.coordinate.latitude) + ":" + String(powerUpLocation.coordinate.longitude) )
+        
+        //prints message if user is within 5 meters of power up
+        if(distance<=5){
+            print("TRIGGER:USER WITHIN 5 METERS OF POWER UP")
+        }
+
+        
+    }
+    
     
     func pointToNearestPin(){
         
