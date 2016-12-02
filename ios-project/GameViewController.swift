@@ -122,6 +122,7 @@ class GameViewController: UIViewController, MKMapViewDelegate {
         
         }
         
+        
         //2nd power up
         //Get x and y coordinates of corners of the map
         let rx2 = self.map.bottomRightPoint.x
@@ -180,7 +181,6 @@ class GameViewController: UIViewController, MKMapViewDelegate {
                 )
 
                 self.MapView.addAnnotation(self.temppin)
-                
                 
                 /*
                 // ANOTHER PIN
@@ -284,6 +284,10 @@ class GameViewController: UIViewController, MKMapViewDelegate {
         // call functions once array of locations is updated
         
     }
+    
+        
+        
+        
     
     func pointToNearestPin(){
         
