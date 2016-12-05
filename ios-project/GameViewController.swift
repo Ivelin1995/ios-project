@@ -19,6 +19,7 @@ extension CGSize{
 
 class GameViewController: UIViewController, MKMapViewDelegate {
 
+    @IBOutlet weak var NavigationItem: UINavigationItem!
     @IBOutlet weak var MapView: MKMapView!
     @IBOutlet weak var captureButton: UIButton!
     @IBOutlet weak var roleLabel: UILabel!
@@ -40,19 +41,26 @@ class GameViewController: UIViewController, MKMapViewDelegate {
     
     var playerIdToCatch = "unknown"
     var capturable = false
-    
+
+    //set Timer
+    var countDownTimer = Timer()
+    var timerValue = 1200
+
     // store the gameId, hardcoded for now
     var gameId = "alex"
     
     var gameEndedObserver : AnyObject?
-    
+
     var db: FIRDatabaseReference!
     fileprivate var _gameHandle: FIRDatabaseHandle!
     fileprivate var _refHandle: FIRDatabaseHandle!
     fileprivate var _powerHandle: FIRDatabaseHandle!
     fileprivate var _lobdyHandle: FIRDatabaseHandle!
-//    var locationsSnapshot: FIRDataSnapshot!
+    //var locationsSnapshot: FIRDataSnapshot!
     var locations: [(id: String, lat: Double, long: Double)] = []
+
+    //var gameID = "1"
+
     
     // SAVES ALL THE DEVICE LOCATIONS
     var pins: [CustomPointAnnotation?] = []
@@ -80,17 +88,11 @@ class GameViewController: UIViewController, MKMapViewDelegate {
         super.viewDidLoad()
         
         configureDatabase()
-        // TEST MAP
-//        var map : Map = Map(topCorner: MKMapPoint(x: 49.247815, y: -123.004096), botCorner: MKMapPoint(x: 49.254675, y: -122.997617), tileSize: 1)
         
 
         getLobdyNumber()
         
-//        if firstTime {
-//            if owner {
-//                addPowerUp(map: map)
-//            }
-//        }
+
         
                var map : Map = Map(topCorner: MKMapPoint(x: (mapPoint1?.latitude)!, y: (mapPoint1?.longitude)!), botCorner: MKMapPoint(x: (mapPoint2?.latitude)!, y: (mapPoint2?.longitude)!), tileSize: 1)
 
@@ -193,6 +195,7 @@ class GameViewController: UIViewController, MKMapViewDelegate {
         addGameEndObs()
 
     }
+    
     // get lobdy number
     func getLobdyNumber(){
         lobdyNumber = defaults.string(forKey: "gameId")!
@@ -203,6 +206,22 @@ class GameViewController: UIViewController, MKMapViewDelegate {
             owner = false
         }
     
+    }
+    
+    func countDown(){
+        timerValue = timerValue - 1
+        if timerValue > 0 {
+            NavigationItem.title = "Time: " + timeFormatted(totalSeconds: timerValue)
+        }else{
+            print("Timer countdown to 0")
+        }
+    }
+    
+    //Format time
+    func timeFormatted(totalSeconds: Int) -> String {
+        let seconds: Int = totalSeconds % 60
+        let minutes: Int = (totalSeconds / 60) % 60
+        return String(format: "%02d:%02d", minutes, seconds)
     }
 
     // remove the pin(power up), when it is used or collected by a player, from the map
@@ -339,8 +358,15 @@ class GameViewController: UIViewController, MKMapViewDelegate {
         for child in locations.children.allObjects as? [FIRDataSnapshot] ?? [] {
             guard child.key != "(null" else { return }
             let childId = child.key
-            let childLat = child.childSnapshot(forPath: "lat").value as! Double
-            let childLong = child.childSnapshot(forPath: "long").value as! Double
+            var childLat = 0.0
+            var childLong = 0.0
+            if (child.childSnapshot(forPath: "lat").value as? Double != nil){
+                childLat = child.childSnapshot(forPath: "lat").value as! Double
+            }
+            
+            if (child.childSnapshot(forPath: "long").value as? Double != nil){
+                childLong = child.childSnapshot(forPath: "long").value as! Double
+            }
             
             var playerRole = " "
             
@@ -438,10 +464,12 @@ class GameViewController: UIViewController, MKMapViewDelegate {
                     }
                 }
             }
-            
-            let str = String(format: "%.2f", arguments: [nearestHider])
-
-            nearestHiderLabel.text = "Nearest Hider: " + str + "m"
+            if(nearestHider == 10000000.0){
+                nearestHiderLabel.text = "No hiders left"
+            }else{
+                let str = String(format: "%.2f", arguments: [nearestHider])
+                nearestHiderLabel.text = "Nearest Hider: " + str + "m"
+            }
             
             
             // point arrow to smallest distance pin
@@ -578,6 +606,13 @@ class GameViewController: UIViewController, MKMapViewDelegate {
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if (segue.identifier == "gameState") {
+            let svc = segue.destination as! GameStateViewController;
+            svc.toPass = gameId
+        }
     }
     
     func convertRectToRegion(rect: MKMapRect) -> MKCoordinateRegion {

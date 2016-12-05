@@ -233,6 +233,7 @@ class LobbyViewController: UIViewController, UITableViewDelegate, UITableViewDat
                 // set client coords to what the DB has
                 self.mapCoordinate1 = CLLocationCoordinate2DMake(p1Lat, p1Long)
                 self.mapCoordinate2 = CLLocationCoordinate2DMake(p2Lat, p2Long)
+                self.hostSetGameTable()
             }
             
         })
@@ -242,7 +243,7 @@ class LobbyViewController: UIViewController, UITableViewDelegate, UITableViewDat
         self.db.child("lobbies").child(gameId).observeSingleEvent(of: .value, with: { (snapshot) in
             let lobbyPlayers = snapshot.childSnapshot(forPath: "players").value as? NSDictionary
             self.db.child("game").child(self.gameId).child("players").updateChildValues(lobbyPlayers as! [AnyHashable : Any])
-            
+            self.performSegue(withIdentifier: "showLoadScreen" , sender: nil)
         })
     }
     
@@ -260,9 +261,9 @@ class LobbyViewController: UIViewController, UITableViewDelegate, UITableViewDat
         self.hostSetPoint()
         
         // Create game table entry
-        self.hostSetGameTable()
+        //self.hostSetGameTable()
         
-        performSegue(withIdentifier: "showLoadScreen" , sender: nil)
+        
     }
     
     func startMap(){
