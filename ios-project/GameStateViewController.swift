@@ -19,20 +19,14 @@ class GameStateViewController: UIViewController {
     var Players: Array< String > = Array < String >()
     fileprivate var _refHandle: FIRDatabaseHandle!
     fileprivate var _refHandlePlayer: FIRDatabaseHandle!
-    fileprivate var _refHandleProfile: FIRDatabaseHandle!
     var hostQuitObserver : AnyObject?
     let notificationCentre = NotificationCenter.default
-    //for testing
+    let gameId: String = "1"
     var seekersCount = 0
     var hidersCount = 0
     let deviceId = UIDevice.current.identifierForVendor!.uuidString
-    //for testing
-    //let deviceId = "262E2058-981A-415F-950F-00517F4BF312"
     var playerIsHost: Bool = false
-    var countPlayTime: Int = 0
-    var updateEvent: Bool = false
-    var toPass: String!
-    var getPlayer: Bool = true
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -48,7 +42,7 @@ class GameStateViewController: UIViewController {
     fileprivate func configureDatabase() {
         // init db
         db = FIRDatabase.database().reference()
-        let gameId = toPass!
+        
         // add observer to game db, get player roles and host deviceId
         _refHandle = self.db.child("game").child(gameId).child("players").observe(.value,
             with: { [weak self] (snapshot) -> Void in
@@ -64,7 +58,6 @@ class GameStateViewController: UIViewController {
     
     //get players info from db.game table and show in the table view
     func showHiders(player: FIRDataSnapshot) {
-        if(getPlayer){
         for child in player.children.allObjects as? [FIRDataSnapshot] ?? [] {
             Players.append(child.childSnapshot(forPath: "role").value as! String)
         }
@@ -86,8 +79,7 @@ class GameStateViewController: UIViewController {
         print(hidersCount)
         print("-----------------------------------------")
         self.tableView.reloadData()
-        getPlayer = false
-        }
+        
     }
     
     //check if player is host and set different text for button
@@ -103,34 +95,10 @@ class GameStateViewController: UIViewController {
     
 
     @IBAction func quitGame(_ sender: AnyObject) {
-        let gameId = toPass!
-        //host end the game
         if(quitButton.titleLabel!.text == "End Game"){
             self.db.child("game").child(gameId).child("hostEnded").setValue(true)
-        //play quit the game
         }else{
-            updateEvent = true
-            self.db.child("game").child(gameId).child("players").child(deviceId).removeValue()
-            addTotalPlayed()
-        }
-        self.db.child("game").removeAllObservers()
-    }
-    
-    //get totalPlayed data from profile and add 1
-    func addTotalPlayed() {
-        _refHandleProfile = self.db.child("profile").child(deviceId).child("totalPlayed").observe(.value,
-          with: { [weak self] (snapshot) -> Void in
-          let value = Int(snapshot.value as! String)! + 1
-          self?.updateData(data: value)
-        })
-        //updateData(data: timePlayed)
-    }
-
-    //update totalPlayed in profile table
-    fileprivate func updateData(data: Int){
-        if(updateEvent){
-            self.db.child("profile").child(deviceId).child("totalPlayed").setValue(String(data))
-            updateEvent = false
+            self.db.child("game").child(gameId).child("players").setValue(true)
         }
     }
 }
