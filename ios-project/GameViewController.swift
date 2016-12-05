@@ -90,7 +90,8 @@ class GameViewController: UIViewController, MKMapViewDelegate {
         
         getLobdyNumber()
         
-        
+        //Time update
+        countDownTimer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(countDown), userInfo: nil, repeats: true)
         
         var map : Map = Map(topCorner: MKMapPoint(x: (mapPoint1?.latitude)!, y: (mapPoint1?.longitude)!), botCorner: MKMapPoint(x: (mapPoint2?.latitude)!, y: (mapPoint2?.longitude)!), tileSize: 1)
         
@@ -206,6 +207,7 @@ class GameViewController: UIViewController, MKMapViewDelegate {
         
     }
     
+    //CountDown Timer
     func countDown(){
         timerValue = timerValue - 1
         if timerValue > 0 {

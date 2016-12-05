@@ -82,6 +82,11 @@ class GameStateViewController: UIViewController {
         
     }
     
+    @IBAction func backBtnListener(_ sender: AnyObject) {
+        self.db.child("game").removeAllObservers()
+        self.dismiss(animated: true, completion: nil)
+    }
+    
     //check if player is host and set different text for button
     func getPlayerRole(playerRole: String) {
         print("-----------------device id---------------")
