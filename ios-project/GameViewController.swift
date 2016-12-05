@@ -112,14 +112,9 @@ class GameViewController: UIViewController, MKMapViewDelegate {
         MapView.addAnnotation(centerPin)
         
         
-        //TODO: Currently hardcoded, so it must be put in a loop once database is set up
-        
-        // assign the player to a role, should get this value from lobby somehow
-        
-        self.myPin.playerRole = "seeker"
         
         self.myPin.playerId   = self.deviceId
-        
+        self.myPin.playerRole = "unknown"
         
         // DEBUG TEMPPIN
         self.temppin2.playerId = "TESTPIN"
@@ -141,24 +136,26 @@ class GameViewController: UIViewController, MKMapViewDelegate {
                 self.tempLocation  = CLLocationCoordinate2D(latitude: self.lat, longitude: self.long)
                 
                 
-                // POSTING TO DB
-                self.db.child("game").child(self.gameId).child("players").child(self.deviceId).setValue([
-                    "lat": self.lat, "long": self.long, "role":self.myPin.playerRole])
+                // Updating values in db
+                self.db.child("game").child(self.gameId).child("players").child(self.deviceId).updateChildValues([
+                    "lat": self.lat, "long": self.long])
                 
                 // CHANGE ROLE LABEL FOR UI
                 // SHOW CORRECT BUTTON UI
-                if(self.myPin.playerRole == "seeker"){
-                    self.roleLabel.text = "You are Seeking!"
-                    self.captureButton.isHidden = false
-                    self.hiderLabel.isHidden = true
-                    self.nearestHiderLabel.isHidden = false
-                }else{
-                    self.roleLabel.text = "You are Hiding!"
-                    self.captureButton.isHidden = true
-                    self.hiderLabel.isHidden = false
-                    self.nearestHiderLabel.isHidden = true
+                if(self.myPin.playerRole != nil){
+                    if(self.myPin.playerRole == "seeker"){
+                        self.roleLabel.text = "You are Seeking!"
+                        self.captureButton.isHidden = false
+                        self.hiderLabel.isHidden = true
+                        self.nearestHiderLabel.isHidden = false
+                    }else{
+                        self.roleLabel.text = "You are Hiding!"
+                        self.captureButton.isHidden = true
+                        self.hiderLabel.isHidden = false
+                        self.nearestHiderLabel.isHidden = true
+                    }
                 }
-                
+            
                 // DEBUG PIN
                 if(self.lat2 == 0.0){
                     // set second pin somewhere above and to left of center pin
@@ -176,7 +173,7 @@ class GameViewController: UIViewController, MKMapViewDelegate {
                 
                 
                 // POSTING TO DB
-                self.db.child("game").child(self.gameId).child("players").child(self.temppin2.playerId).setValue([
+                self.db.child("game").child(self.gameId).child("players").child(self.temppin2.playerId).updateChildValues([
                     "lat": self.lat2, "long": self.long2, "role":self.temppin2.playerRole])
                 
                 //                self.configurePowerUpDatabase()
@@ -485,15 +482,15 @@ class GameViewController: UIViewController, MKMapViewDelegate {
                     let long = (pin?.coordinate.longitude)! as Double
                     
                     // POSTING TO DB
-                    self.db.child("game").child(self.gameId).child("players").child(playerIdToCatch).setValue([
-                        "lat": lat, "long": long, "role": "seeker"])
+                    self.db.child("game").child(self.gameId).child("players").child(playerIdToCatch).updateChildValues([
+                        "role": "seeker"])
                 }
             }
         }
     }
     
     deinit {
-        //        self.db.child("locations").removeObserver(withHandle: _refHandle)
+        //.db.child("locations").removeObserver(withHandle: _refHandle)
     }
     
     func UnoDirections(pointA: MKPointAnnotation, pointB: MKPointAnnotation){
