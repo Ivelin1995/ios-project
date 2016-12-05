@@ -493,7 +493,7 @@ class GameViewController: UIViewController, MKMapViewDelegate {
     }
     
     deinit {
-        self.db.child("locations").removeObserver(withHandle: _refHandle)
+//        self.db.child("locations").removeObserver(withHandle: _refHandle)
     }
     
     func UnoDirections(pointA: MKPointAnnotation, pointB: MKPointAnnotation){
