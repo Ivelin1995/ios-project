@@ -81,10 +81,10 @@ public class Game{
 //            self?.lobbySnapshot = snapshot
 //        })
 //        
-//        self.db.child("game").child(gameId).observe(.value, with: { [weak self] (snapshot) -> Void in
-//            guard let strongSelf5 = self else {return}
-//            strongSelf5.gametopSnapshot = snapshot
-//        })
+        self.db.child("game").child(gameId).observe(.value, with: { [weak self] (snapshot) -> Void in
+            guard let strongSelf5 = self else {return}
+            strongSelf5.gametopSnapshot = snapshot
+        })
 
 
     }
@@ -160,6 +160,7 @@ public class Game{
     func getCurrentPlayersCount() -> Int{
         //get value from db
         while(gametopSnapshot?.childSnapshot(forPath: "players") == nil){
+            print("couldn't get current players count. trying again")
             sleep(2)
         }
         print("current player count: \(Int((gametopSnapshot?.childSnapshot(forPath: "players").childrenCount)!))")
@@ -170,6 +171,7 @@ public class Game{
     func getCurrentHidersCount() -> Int{
         //get value from db
         while(gametopSnapshot?.childSnapshot(forPath: "players") == nil){
+            print("couldn't get current hiders count. trying again")
             sleep(1)
         }
         var counter = 0
@@ -186,6 +188,7 @@ public class Game{
     func getCurrentSeekersCount() -> Int {
         //get value from db
         while(gametopSnapshot?.childSnapshot(forPath: "players") == nil){
+            print("couldn't get current seekers count. trying again")
             sleep(1)
         }
         var counter = 0
@@ -202,6 +205,7 @@ public class Game{
     func checkHostCancelled() -> Bool{
         //return value from db
         while(gametopSnapshot?.value == nil){
+            print("couldn't get if host cancelled. trying again")
             sleep(1)
         }
         
@@ -221,7 +225,7 @@ public class Game{
         sleep(1)
         
         let deviceId = UIDevice.current.identifierForVendor!.uuidString
-        db.child("locations").child(deviceId).removeValue()
+        self.db.child("game").child(gameId).child("players").child(deviceId).removeValue()
     }
     
     func removeLobby() {

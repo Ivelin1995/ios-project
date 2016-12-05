@@ -23,21 +23,21 @@ class GameEndViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        db = FIRDatabase.database().reference()
+//        db = FIRDatabase.database().reference()
         
         // read locations from db
-        _refHandle = self.db.child("profile").child(deviceId).observe(.value, with: { [weak self] (snapshot) -> Void in
+//        _refHandle = self.db.child("profile").child(deviceId).observe(.value, with: { [weak self] (snapshot) -> Void in
 
 
-            let value = snapshot.value as? NSDictionary	
-            let recentUserName = value?["recentUserName"] as? String ?? ""
-            let totPlayed = value?["totalPlayed"] as? String ?? ""
-            let winCount = value?["winCount"] as? String ?? ""
+//            let value = snapshot.value as? NSDictionary	
+//            let recentUserName = value?["recentUserName"] as? String ?? ""
+//            let totPlayed = value?["totalPlayed"] as? String ?? ""
+//            let winCount = value?["winCount"] as? String ?? ""
             
-            self?.topLabel.text=(recentUserName)
+//            self?.topLabel.text=(recentUserName)
             
             //call either wonGame or lostGame depending on outcome of game
-            self?.wonGame()
+//            self?.wonGame()
             
 //            let losses = Int(totPlayed)!-Int(winCount)!
             
@@ -45,17 +45,17 @@ class GameEndViewController: UIViewController {
 //            self?.winLabel.text=String(winCount)
             
             //kill instance of game if not dead already
-        })
-        
+//        })
+        topLabel.text = "Game Over!"
     }
     
     func wonGame(){
         // increase gamesplayed and won
-        topLabel.text=(topLabel.text! + ", You Won!")
+//        topLabel.text=(topLabel.text! + ", You Won!")
     }
     func lostGame(){
         //increase gamesplayed
-        topLabel.text=(topLabel.text! + ", You Lost!")
+//        topLabel.text=(topLabel.text! + ", You Lost!")
     }
     
     
