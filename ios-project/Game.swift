@@ -80,6 +80,7 @@ public class Game{
             
             self?.lobbySnapshot = snapshot
         })
+        
         self.db.child("game").child(gameId).observe(.value, with: { [weak self] (snapshot) -> Void in
             guard let strongSelf5 = self else {return}
             strongSelf5.gametopSnapshot = snapshot
@@ -208,8 +209,7 @@ public class Game{
     }
     
     func checkOutOfTime() -> Bool{
-//        return true
-        return false
+        return true
     }
     
     func removeSelfFromGameTable(){
@@ -229,6 +229,11 @@ public class Game{
     func showGameEndView(){
         print("posting quit game obs")
         Notifications.postGameEnded(self, gameEnded: true)
+    }
+    
+    func removeObservers(){
+        self.db.removeAllObservers() // will removing all affect other parts of the game?
+//        self.db.child("game").removeAllObservers()
     }
     
     func quitGame() {
