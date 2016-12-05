@@ -199,7 +199,7 @@ public class Game{
                 counter += 1
             }
         }
-        print("*** seeker \(counter)")
+        //print("*** seeker \(counter)")
         return counter;
     }
     
@@ -212,14 +212,8 @@ public class Game{
         
         let value = gametopSnapshot?.value as? NSDictionary
         
-//        print("value")
-//        print(value?["hostEnded"] as! Bool)
-//
-//        print("ASKDFHAJKSDFKJASDGHKJADSFJKGDFAG")
-//        print(gametopSnapshot?.value)
-//        return gametopSnapshot?.value(forKey: "hostEnded") as! Bool
         return value?["hostEnded"] as! Bool
-        //return gametopSnapshot?.value(forKey: "hostEnded") as! Bool
+
     }
     
     func checkOutOfTime() -> Bool{
@@ -242,7 +236,13 @@ public class Game{
     }
     
     func showGameEndView(){
-        
+        print("posting quit game obs")
+        Notifications.postGameEnded(self, gameEnded: true)
+    }
+    
+    func removeObservers(){
+        self.db.removeAllObservers() // will removing all affect other parts of the game?
+//        self.db.child("game").removeAllObservers()
     }
     
     func quitGame() {
