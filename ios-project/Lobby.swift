@@ -104,7 +104,7 @@ class Lobby{
     
     // Updates a players ready and seeker status when they change it
     func lobbyOnPlayerStateChanged(userName: String, ready: Bool, seeker: Bool) {
-        for var row in playerList {
+        for row in playerList {
             if (row.profile.userName == userName) {
                 row.isReady = ready
                 row.isSeeker = seeker
