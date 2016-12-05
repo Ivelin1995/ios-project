@@ -634,6 +634,8 @@ class GameViewController: UIViewController, MKMapViewDelegate {
     }
     
     func segueToGameEndView(){
+        self.db.child("game").removeAllObservers()
+        
         performSegue(withIdentifier: "showGameEndView" , sender: nil)
     }
     // END TESTING GAME CLASS
