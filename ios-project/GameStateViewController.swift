@@ -32,6 +32,7 @@ class GameStateViewController: UIViewController {
     var countPlayTime: Int = 0
     var updateEvent: Bool = false
     var toPass: String!
+    var getPlayer: Bool = true
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -63,6 +64,7 @@ class GameStateViewController: UIViewController {
     
     //get players info from db.game table and show in the table view
     func showHiders(player: FIRDataSnapshot) {
+        if(getPlayer){
         for child in player.children.allObjects as? [FIRDataSnapshot] ?? [] {
             Players.append(child.childSnapshot(forPath: "role").value as! String)
         }
@@ -84,7 +86,8 @@ class GameStateViewController: UIViewController {
         print(hidersCount)
         print("-----------------------------------------")
         self.tableView.reloadData()
-        
+        getPlayer = false
+        }
     }
     
     //check if player is host and set different text for button
