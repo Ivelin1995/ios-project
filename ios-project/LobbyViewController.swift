@@ -217,25 +217,49 @@ class LobbyViewController: UIViewController, UITableViewDelegate, UITableViewDat
         }
     }
     
-    func gameStart() {
-        
-
-        
+    func hostSetPoint() {
+        // update coords in lobby table
         self.db.child("lobbies").child(gameId).child("coords").observeSingleEvent(of: .value, with: { (snapshot) in
             let point1 = snapshot.childSnapshot(forPath: "point1").value as? NSDictionary
             let point2 = snapshot.childSnapshot(forPath: "point2").value as? NSDictionary
             print("____ \n In gameStart() setting coordinates \n ____")
             if point1 != nil && point2 != nil {
-                let p1Lat = point1?["lat"] as! Double 
+                let p1Lat = point1?["lat"] as! Double
                 let p1Long = point1?["long"] as! Double
                 let p2Lat = point2?["lat"] as! Double
-                let p2Long = point2?["long"] as! Double 
+                let p2Long = point2?["long"] as! Double
                 // set client coords to what the DB has
                 self.mapCoordinate1 = CLLocationCoordinate2DMake(p1Lat, p1Long)
                 self.mapCoordinate2 = CLLocationCoordinate2DMake(p2Lat, p2Long)
             }
- 
+            
         })
+    }
+    
+    func setLobbyPlayers() {
+        self.db.child("lobbies").child(gameId).observeSingleEvent(of: .value, with: { (snapshot) in
+            let lobbyPlayers = snapshot.childSnapshot(forPath: "players").value as? NSDictionary
+            self.db.child("game").child(self.gameId).child("players").updateChildValues(lobbyPlayers as! [AnyHashable : Any])
+            
+        })
+    }
+    
+    func hostSetGameTable() {
+        self.db.child("game").child(gameId).setValue([
+            "duration" : self.gameDuration,
+            "hostEnded" : false,
+            "hostId" : self.deviceId
+            ])
+        self.setLobbyPlayers()
+    }
+    
+    func gameStart() {
+        // update coords in lobby table
+        self.hostSetPoint()
+        
+        // Create game table entry
+        self.hostSetGameTable()
+        
         performSegue(withIdentifier: "showLoadScreen" , sender: nil)
     }
     
@@ -264,12 +288,12 @@ class LobbyViewController: UIViewController, UITableViewDelegate, UITableViewDat
         
         self.db.child("lobbies").child(gameId).child("coords").updateChildValues([
             "point1" : [
-                "lat"   : self.mapCoordinate1?.latitude,
-                "long"  : self.mapCoordinate1?.longitude
+                "lat"   : self.mapCoordinate1!.latitude,
+                "long"  : self.mapCoordinate1!.longitude
             ],
             "point2" : [
-                "lat"   : self.mapCoordinate2?.latitude,
-                "long"  : self.mapCoordinate2?.longitude
+                "lat"   : self.mapCoordinate2!.latitude,
+                "long"  : self.mapCoordinate2!.longitude
             ]
         ])
         self.db.child("lobbies").child(gameId).updateChildValues(["gameStart" : true])
