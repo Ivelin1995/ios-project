@@ -209,7 +209,7 @@ public class Game{
     }
     
     func checkOutOfTime() -> Bool{
-        return true
+        return false
     }
     
     func removeSelfFromGameTable(){

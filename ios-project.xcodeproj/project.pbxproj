@@ -373,7 +373,7 @@
 				TargetAttributes = {
 					7A0A33AF1DB16D3000C2F2D1 = {
 						CreatedOnToolsVersion = 8.0;
-						DevelopmentTeam = K3L3UF83XU;
+						DevelopmentTeam = L5CRFF55A6;
 						ProvisioningStyle = Automatic;
 					};
 					7A0A33C31DB16D3100C2F2D1 = {
@@ -688,11 +688,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				DEVELOPMENT_TEAM = K3L3UF83XU;
+				DEVELOPMENT_TEAM = L5CRFF55A6;
 				INFOPLIST_FILE = "ios-project/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = alukonin.ios;
+				PRODUCT_BUNDLE_IDENTIFIER = alukonin.ios8;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 3.0;
 			};
@@ -704,11 +704,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				DEVELOPMENT_TEAM = K3L3UF83XU;
+				DEVELOPMENT_TEAM = L5CRFF55A6;
 				INFOPLIST_FILE = "ios-project/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = alukonin.ios;
+				PRODUCT_BUNDLE_IDENTIFIER = alukonin.ios8;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 3.0;
 			};
