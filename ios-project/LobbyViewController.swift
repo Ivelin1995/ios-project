@@ -237,12 +237,12 @@ class LobbyViewController: UIViewController, UITableViewDelegate, UITableViewDat
     @IBAction func startGameListener(_ sender: Any) {
         self.db.child("lobbies").child(gameId).child("coords").updateChildValues([
             "point1" : [
-                "lat"   : self.mapCoordinate1?.latitude,
-                "long"  : self.mapCoordinate1?.longitude
+                "lat"   : self.mapCoordinate1!.latitude,
+                "long"  : self.mapCoordinate1!.longitude
             ],
             "point2" : [
-                "lat"   : self.mapCoordinate2?.latitude,
-                "long"  : self.mapCoordinate2?.longitude
+                "lat"   : self.mapCoordinate2!.latitude,
+                "long"  : self.mapCoordinate2!.longitude
             ]
         ])
         self.db.child("lobbies").child(gameId).updateChildValues(["gameStart" : true])
