@@ -51,42 +51,42 @@ class GameStateViewController: UIViewController {
         let gameId = toPass!
         // add observer to game db, get player roles and host deviceId
         _refHandle = self.db.child("game").child(gameId).child("players").observe(.value,
-            with: { [weak self] (snapshot) -> Void in
-            guard let strongSelf = self else { return }
-            strongSelf.showHiders(player: snapshot)
+                                                                                  with: { [weak self] (snapshot) -> Void in
+                                                                                    guard let strongSelf = self else { return }
+                                                                                    strongSelf.showHiders(player: snapshot)
             })
         _refHandlePlayer = self.db.child("game").child(gameId).child("hostId").observe(.value,
-            with: { [weak self] (snapshot) -> Void in
-            let value = snapshot.value as! String
-            self?.getPlayerRole(playerRole: value)
+                                                                                       with: { [weak self] (snapshot) -> Void in
+                                                                                        let value = snapshot.value as! String
+                                                                                        self?.getPlayerRole(playerRole: value)
             })
     }
     
     //get players info from db.game table and show in the table view
     func showHiders(player: FIRDataSnapshot) {
         if(getPlayer){
-        for child in player.children.allObjects as? [FIRDataSnapshot] ?? [] {
-            Players.append(child.childSnapshot(forPath: "role").value as! String)
-        }
-        
-        for role in Players{
-            if(role == "seeker"){
-                seekersCount += 1
-            }else{
-                hidersCount += 1
+            for child in player.children.allObjects as? [FIRDataSnapshot] ?? [] {
+                Players.append(child.childSnapshot(forPath: "role").value as! String)
             }
-        }
-        
-        seekerValue.text = String(seekersCount)
-        hiderValue.text = String(hidersCount)
-        print("---------# of seekers and hiders---------")
-        print("seeker")
-        print(seekersCount)
-        print("hider")
-        print(hidersCount)
-        print("-----------------------------------------")
-        self.tableView.reloadData()
-        getPlayer = false
+            
+            for role in Players{
+                if(role == "seeker"){
+                    seekersCount += 1
+                }else{
+                    hidersCount += 1
+                }
+            }
+            
+            seekerValue.text = String(seekersCount)
+            hiderValue.text = String(hidersCount)
+            print("---------# of seekers and hiders---------")
+            print("seeker")
+            print(seekersCount)
+            print("hider")
+            print(hidersCount)
+            print("-----------------------------------------")
+            self.tableView.reloadData()
+            getPlayer = false
         }
     }
     
@@ -101,13 +101,13 @@ class GameStateViewController: UIViewController {
         }
     }
     
-
+    
     @IBAction func quitGame(_ sender: AnyObject) {
         let gameId = toPass!
         //host end the game
         if(quitButton.titleLabel!.text == "End Game"){
             self.db.child("game").child(gameId).child("hostEnded").setValue(true)
-        //play quit the game
+            //play quit the game
         }else{
             updateEvent = true
             self.db.child("game").child(gameId).child("players").child(deviceId).removeValue()
@@ -125,7 +125,7 @@ class GameStateViewController: UIViewController {
         })
         //updateData(data: timePlayed)
     }
-
+    
     //update totalPlayed in profile table
     fileprivate func updateData(data: Int){
         if(updateEvent){
@@ -133,4 +133,10 @@ class GameStateViewController: UIViewController {
             updateEvent = false
         }
     }
+    
+    @IBAction func backBtnListener(_ sender: AnyObject) {
+        self.db.child("game").removeAllObservers()
+        self.dismiss(animated: true, completion: nil)
+    }
+
 }
