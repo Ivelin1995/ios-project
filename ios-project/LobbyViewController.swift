@@ -182,7 +182,7 @@ class LobbyViewController: UIViewController, UITableViewDelegate, UITableViewDat
     }
 
     deinit {
-       // self.db.child("lobbies").child(gameId).removeObserver(withHandle: _refHandle)
+//        self.db.child("lobbies").child(gameId).removeAllObservers()
     }
     
     
@@ -215,6 +215,7 @@ class LobbyViewController: UIViewController, UITableViewDelegate, UITableViewDat
             guest.mapPoint1 = self.mapCoordinate1
             guest.mapPoint2 = self.mapCoordinate2
             guest.gameId = self.gameId
+            self.db.child("lobbies").child(gameId).removeObserver(withHandle: _refHandle)
         }
     }
     

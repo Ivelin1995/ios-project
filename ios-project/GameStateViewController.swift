@@ -113,7 +113,7 @@ class GameStateViewController: UIViewController {
             self.db.child("game").child(gameId).child("players").child(deviceId).removeValue()
             addTotalPlayed()
         }
-        self.db.child("locations").removeObserver(withHandle: _refHandle)
+        self.db.child("game").removeAllObservers()
     }
     
     //get totalPlayed data from profile and add 1

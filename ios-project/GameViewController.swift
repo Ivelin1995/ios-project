@@ -493,7 +493,7 @@ class GameViewController: UIViewController, MKMapViewDelegate {
     }
     
     deinit {
-        self.db.child("locations").removeObserver(withHandle: _refHandle)
+//        self.db.child("locations").removeObserver(withHandle: _refHandle)
     }
     
     func UnoDirections(pointA: MKPointAnnotation, pointB: MKPointAnnotation){
@@ -669,6 +669,8 @@ class GameViewController: UIViewController, MKMapViewDelegate {
     }
     
     func segueToGameEndView(){
+        self.db.child("game").removeAllObservers()
+        
         performSegue(withIdentifier: "showGameEndView" , sender: nil)
     }
     // END TESTING GAME CLASS
