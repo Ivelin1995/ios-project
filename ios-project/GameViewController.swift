@@ -19,14 +19,17 @@ extension CGSize{
 
 class GameViewController: UIViewController, MKMapViewDelegate {
 
+    @IBOutlet weak var NavigationItem: UINavigationItem!
     @IBOutlet weak var MapView: MKMapView!
     @IBOutlet weak var captureButton: UIButton!
+    @IBOutlet weak var roleLabel: UILabel!
+    @IBOutlet weak var hiderLabel: UILabel!
+    @IBOutlet weak var nearestHiderLabel: UILabel!
     
     let notificationCentre = NotificationCenter.default
     let locationManager = CLLocationManager()
     var locationUpdatedObserver : AnyObject?
     var myPin  = CustomPointAnnotation()
-    var temppin  = CustomPointAnnotation()
     var temppin2  = CustomPointAnnotation()
     var numberOfPower : Int = 10
     //center pin
@@ -38,15 +41,26 @@ class GameViewController: UIViewController, MKMapViewDelegate {
     
     var playerIdToCatch = "unknown"
     var capturable = false
+
+    //set Timer
+    var countDownTimer = Timer()
+    var timerValue = 999
+
+    // store the gameId, hardcoded for now
+    var gameId = ""
     
-    
+    var gameEndedObserver : AnyObject?
+
     var db: FIRDatabaseReference!
+    fileprivate var _gameHandle: FIRDatabaseHandle!
     fileprivate var _refHandle: FIRDatabaseHandle!
     fileprivate var _powerHandle: FIRDatabaseHandle!
     fileprivate var _lobdyHandle: FIRDatabaseHandle!
-//    var locationsSnapshot: FIRDataSnapshot!
+    var durationSnapshot: FIRDataSnapshot!
     var locations: [(id: String, lat: Double, long: Double)] = []
-    
+
+    //var gameID = "1"
+
     
     // SAVES ALL THE DEVICE LOCATIONS
     var pins: [CustomPointAnnotation?] = []
@@ -74,20 +88,8 @@ class GameViewController: UIViewController, MKMapViewDelegate {
         super.viewDidLoad()
         
         configureDatabase()
-        // TEST MAP
-        var map : Map = Map(topCorner: MKMapPoint(x: 49.247815, y: -123.004096), botCorner: MKMapPoint(x: 49.254675, y: -122.997617), tileSize: 1)
         
-
-        getLobdyNumber()
-        
-        if firstTime {
-            if owner {
-                addPowerUp(map: map)
-            }
-        }
-        
-        
-//        var map : Map = Map(topCorner: MKMapPoint(x: (mapPoint1?.latitude)!, y: (mapPoint1?.longitude)!), botCorner: MKMapPoint(x: (mapPoint2?.latitude)!, y: (mapPoint2?.longitude)!), tileSize: 1)
+        let map : Map = Map(topCorner: MKMapPoint(x: (mapPoint1?.latitude)!, y: (mapPoint1?.longitude)!), botCorner: MKMapPoint(x: (mapPoint2?.latitude)!, y: (mapPoint2?.longitude)!), tileSize: 1)
 
         self.MapView.delegate = self
       
@@ -108,12 +110,9 @@ class GameViewController: UIViewController, MKMapViewDelegate {
         
         //TODO: Currently hardcoded, so it must be put in a loop once database is set up
         
-        // assign the player to a role, should get this value from lobby somehow
-        
-        self.myPin.playerRole = "seeker"
 
         self.myPin.playerId   = self.deviceId
-        
+        self.myPin.playerRole = "unknown"
         
         // DEBUG TEMPPIN
         self.temppin2.playerId = "TESTPIN"
@@ -135,12 +134,26 @@ class GameViewController: UIViewController, MKMapViewDelegate {
                 self.tempLocation  = CLLocationCoordinate2D(latitude: self.lat, longitude: self.long)
                 
                 
-                // POSTING TO DB
-                self.db.child("locations").child(self.deviceId).setValue([
-                    "lat": self.lat, "long": self.long, "role":self.myPin.playerRole])
+                // Updating values in db
+                self.db.child("game").child(self.gameId).child("players").child(self.deviceId).updateChildValues([
+                    "lat": self.lat, "long": self.long])
                 
-                
-                
+                // CHANGE ROLE LABEL FOR UI
+                // SHOW CORRECT BUTTON UI
+                if(self.myPin.playerRole != nil){
+                    if(self.myPin.playerRole == "seeker"){
+                        self.roleLabel.text = "You are Seeking!"
+                        self.captureButton.isHidden = false
+                        self.hiderLabel.isHidden = true
+                        self.nearestHiderLabel.isHidden = false
+                    }else{
+                        self.roleLabel.text = "You are Hiding!"
+                        self.captureButton.isHidden = true
+                        self.hiderLabel.isHidden = false
+                        self.nearestHiderLabel.isHidden = true
+                    }
+                }
+            
                 // DEBUG PIN
                 if(self.lat2 == 0.0){
                     // set second pin somewhere above and to left of center pin
@@ -158,13 +171,9 @@ class GameViewController: UIViewController, MKMapViewDelegate {
 
                 
                 // POSTING TO DB
-                self.db.child("locations").child(self.temppin2.playerId).setValue([
+                self.db.child("game").child(self.gameId).child("players").child(self.temppin2.playerId).updateChildValues([
                     "lat": self.lat2, "long": self.long2, "role":self.temppin2.playerRole])
-
-                self.configurePowerUpDatabase()
                 
-                
-                self.searchPowerUp()
             }
         }
         
@@ -172,8 +181,10 @@ class GameViewController: UIViewController, MKMapViewDelegate {
          //this sends the request to start fetching the location
         Notifications.postGpsToggled(self, toggle: true)
         
-
+        // add observer for end game signal
+        addGameEndObs()
     }
+    
     // get lobdy number
     func getLobdyNumber(){
         lobdyNumber = defaults.string(forKey: "gameId")!
@@ -184,6 +195,23 @@ class GameViewController: UIViewController, MKMapViewDelegate {
             owner = false
         }
     
+    }
+    
+    func countDown(){
+        timerValue = timerValue - 1
+        if timerValue > 0 {
+            NavigationItem.title = "Time: " + timeFormatted(totalSeconds: timerValue)
+        }else{
+            Notifications.postGameEnded(self, gameEnded: true)
+            print("Timer countdown to 0")
+        }
+    }
+    
+    //Format time
+    func timeFormatted(totalSeconds: Int) -> String {
+        let seconds: Int = totalSeconds % 60
+        let minutes: Int = (totalSeconds / 60) % 60
+        return String(format: "%02d:%02d", minutes, seconds)
     }
 
     // remove the pin(power up), when it is used or collected by a player, from the map
@@ -205,7 +233,7 @@ class GameViewController: UIViewController, MKMapViewDelegate {
         db = FIRDatabase.database().reference()
         
         // read locations from db
-        _refHandle = self.db.child("locations").observe(.value, with: { [weak self] (snapshot) -> Void in
+        _refHandle = self.db.child("game").child(gameId).child("players").observe(.value, with: { [weak self] (snapshot) -> Void in
             guard let strongSelf = self else
             {
                 return
@@ -214,22 +242,32 @@ class GameViewController: UIViewController, MKMapViewDelegate {
             strongSelf.parseLocationsSnapshot(locations: snapshot)
         })
         
+        // read locations from db
+        self.db.child("game").child(gameId).child("duration").observe(.value, with: { [weak self] (snapshot) -> Void in
+            guard let strongSelf = self else {return}
+                strongSelf.durationSnapshot = snapshot
+            })
         
+        
+ 
     }
     
+
     func configurePowerUpDatabase() {
-        //init db
-        db = FIRDatabase.database().reference()
+//        //init db
+//        db = FIRDatabase.database().reference()
+//        
+//        // read locations for power up from db
+//        _powerHandle = self.db.child("powerup").child(lobdyNumber).observe(.value, with: { [weak self] (snapshot) -> Void in
+//            guard let strongSelf = self else
+//            {
+//                return
+//            }
+//            
+//            strongSelf.parsePowerUpSnapshot(locations: snapshot)
+//        })
+//        
         
-        // read locations for power up from db
-        _powerHandle = self.db.child("powerup").child(lobdyNumber).observe(.value, with: { [weak self] (snapshot) -> Void in
-            guard let strongSelf = self else
-            {
-                return
-            }
-            
-            strongSelf.parsePowerUpSnapshot(locations: snapshot)
-        })
     }
     
     
@@ -301,7 +339,7 @@ class GameViewController: UIViewController, MKMapViewDelegate {
         }
     }
     
-    // parse locations from db, store in array of tuples
+    // Get all player locations from game > gameId > players
     func parseLocationsSnapshot(locations: FIRDataSnapshot) {
         // empty the array
         self.locations.removeAll()
@@ -314,12 +352,20 @@ class GameViewController: UIViewController, MKMapViewDelegate {
         // empty pins array
         pins.removeAll()
         
+        
         // loop through each device and retrieve device id, lat and long, store in locations array
         for child in locations.children.allObjects as? [FIRDataSnapshot] ?? [] {
             guard child.key != "(null" else { return }
             let childId = child.key
-            let childLat = child.childSnapshot(forPath: "lat").value as! Double
-            let childLong = child.childSnapshot(forPath: "long").value as! Double
+            var childLat = 0.0
+            var childLong = 0.0
+            if (child.childSnapshot(forPath: "lat").value as? Double != nil){
+                childLat = child.childSnapshot(forPath: "lat").value as! Double
+            }
+            
+            if (child.childSnapshot(forPath: "long").value as? Double != nil){
+                childLong = child.childSnapshot(forPath: "long").value as! Double
+            }
             
             var playerRole = " "
             
@@ -363,7 +409,7 @@ class GameViewController: UIViewController, MKMapViewDelegate {
         // call functions once array of locations is updated
         
     }
-    
+
     func pointToNearestPin(){
         
         if(pins.count > 0){
@@ -373,6 +419,7 @@ class GameViewController: UIViewController, MKMapViewDelegate {
             // pin of current smallest distance
             var smallestDistancePin = CustomPointAnnotation()
             var smallestDistance = 10000000.0
+            var nearestHider = 10000000.0
             for pin in pins{
                 
                 // skip if pin is yourself
@@ -399,7 +446,6 @@ class GameViewController: UIViewController, MKMapViewDelegate {
                         captureButton.isEnabled = true
                         capturable = true
                         playerIdToCatch = (pin?.playerId)!
-                        print(playerIdToCatch)
                     }else{
                         playerIdToCatch = "unknown"
                         capturable = false
@@ -409,8 +455,22 @@ class GameViewController: UIViewController, MKMapViewDelegate {
                     // assign pin to smallest distance pin
                     smallestDistancePin = pin!
                 }
+                
+                // get the nearest hider if you're a seeker
+                if(self.myPin.playerRole == "seeker" && pin?.playerRole == "hider"){
+                    if(nearestHider > distance){
+                        nearestHider = distance
+                    }
+                }
             }
-            print(String(smallestDistance) + " " + playerIdToCatch)
+            if(nearestHider == 10000000.0){
+                nearestHiderLabel.text = "No hiders left"
+            }else{
+                let str = String(format: "%.2f", arguments: [nearestHider])
+                nearestHiderLabel.text = "Nearest Hider: " + str + "m"
+            }
+            
+            
             // point arrow to smallest distance pin
             self.UnoDirections(pointA: self.myPin, pointB: smallestDistancePin);
         }
@@ -420,19 +480,20 @@ class GameViewController: UIViewController, MKMapViewDelegate {
         if(capturable == true){
             for pin in pins{
                 if(pin?.playerId == playerIdToCatch){
-                    let lat = (pin?.coordinate.latitude)! as Double
-                    let long = (pin?.coordinate.longitude)! as Double
+                    //let lat = (pin?.coordinate.latitude)! as Double
+                    //let long = (pin?.coordinate.longitude)! as Double
                     
                     // POSTING TO DB
-                    self.db.child("locations").child((pin?.playerId)!).setValue([
-                        "lat": lat, "long": long, "role": "hunter"])
+                    self.db.child("game").child(self.gameId).child("players").child(playerIdToCatch).updateChildValues([
+                        "role": "seeker"])
                 }
             }
         }
     }
     
     deinit {
-        self.db.child("locations").removeObserver(withHandle: _refHandle)
+        //.db.child("locations").removeObserver(withHandle: _refHandle)
+
     }
     
     func UnoDirections(pointA: MKPointAnnotation, pointB: MKPointAnnotation){
@@ -547,6 +608,13 @@ class GameViewController: UIViewController, MKMapViewDelegate {
         // Dispose of any resources that can be recreated.
     }
     
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if (segue.identifier == "gameState") {
+            let svc = segue.destination as! GameStateViewController;
+            svc.toPass = gameId
+        }
+    }
+    
     func convertRectToRegion(rect: MKMapRect) -> MKCoordinateRegion {
         // find center
         return MKCoordinateRegionMake(
@@ -575,16 +643,30 @@ class GameViewController: UIViewController, MKMapViewDelegate {
     override func viewDidAppear(_ animated: Bool) {
         startGame()
         
-        // game ended, go to game end view
-        performSegue(withIdentifier: "showGameEndView" , sender: nil)
+        setTimer()
+        
     }
     
     func startGame(){
-        let player1 = Player("player1")
-        let player2 = Player("player2")
-        
-        let game = Game(players: [player1, player2], gameTime: 2)
+        let game = Game(gameTime: 2, isHost: true, gameId: self.gameId)
         game.startGame()
+    }
+    
+    func addGameEndObs(){
+        gameEndedObserver = notificationCentre.addObserver(forName: NSNotification.Name(rawValue: Notifications.GameEnded),
+                                                           object: nil,
+                                                           queue: nil)
+        {
+            (note) in
+            let gameEnded = Notifications.getGameEnded(note)
+            print("game ended: \(gameEnded), segue into game end view")
+            self.segueToGameEndView()
+        }
+    }
+    
+    func segueToGameEndView(){
+        self.db.child("game").removeAllObservers()
+        
         performSegue(withIdentifier: "showGameEndView" , sender: nil)
     }
     // END TESTING GAME CLASS
@@ -616,6 +698,18 @@ class GameViewController: UIViewController, MKMapViewDelegate {
         }
         firstTime = false
         
+    }
+    
+    func setTimer(){
+        
+        while (self.durationSnapshot == nil){
+            print("duration is null")
+            sleep(1)
+        }
+        print("****duration \(self.durationSnapshot.value as! Int))")
+        //Time Update
+        countDownTimer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(countDown), userInfo: nil, repeats: true)
+        timerValue = (self.durationSnapshot.value as! Int) * 60
     }
 
 

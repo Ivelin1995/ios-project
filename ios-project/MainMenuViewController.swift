@@ -97,7 +97,7 @@ class MainMenuViewController: UIViewController {
         defaults.setValue( "owner", forKey: "authorization")
         defaults.synchronize()
         self.db.child("lobbies").child(gameId).setValue(["hostId": deviceId, "gameStart": false])
-        self.db.child("lobbies").child(gameId).child("players").child(deviceId).setValue(["ready": false, "role": "hunter", "username": username])
+        self.db.child("lobbies").child(gameId).child("players").child(deviceId).setValue(["ready": false, "role": "seeker", "username": username])
         self.db.child("lobbies").child(gameId).child("coords").setValue(["point1": ["lat" : 0, "long" : 0], "point2" : ["lat" : 0, "long" : 0]])
         
         performSegue(withIdentifier: "LobbySegue", sender: self)
@@ -111,7 +111,7 @@ class MainMenuViewController: UIViewController {
         defaults.setValue(gameId, forKey: "gameId")
         defaults.setValue( "member", forKey: "authorization")
         defaults.synchronize()
-        self.db.child("lobbies").child(gameId).child("players").child(deviceId).setValue(["ready": false, "role": "hunter", "username": username])
+        self.db.child("lobbies").child(gameId).child("players").child(deviceId).setValue(["ready": false, "role": "seeker", "username": username])
         
         performSegue(withIdentifier: "LobbySegue", sender: self)
     }

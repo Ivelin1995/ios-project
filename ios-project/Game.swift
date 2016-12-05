@@ -10,9 +10,10 @@ import Firebase
 
 public class Game{
     
-    var currentPlayers: [Player]
+    var currentPlayers: [Player] = []
     var gameTime: Int!
     
+    var isHost: Bool
     var gameRunning = false
     let gameBackgroundQueue = DispatchQueue(label: "game.queue",
                                             qos: .background,
@@ -27,19 +28,24 @@ public class Game{
     var gameSnapshot : FIRDataSnapshot?
     var lobbySnapshot : FIRDataSnapshot?
 
+    var gametopSnapshot : FIRDataSnapshot?
+
     var locationsSnapshot: FIRDataSnapshot!
     
     var db: FIRDatabaseReference!
     fileprivate var _refHandle: FIRDatabaseHandle!
     
     //Testing purposes
-    var gameId : String = "1";
+    var gameId : String = "";
     
     //start game
-    init(players: [Player], gameTime: Int){
+    init(gameTime: Int, isHost: Bool, gameId: String){
         
-        currentPlayers = players
+        //currentPlayers = players
         self.gameTime = gameTime;
+        self.isHost = isHost
+        self.gameId = gameId
+        print("game id is \(gameId)")
         configureDatabase()
     }
     
@@ -48,45 +54,56 @@ public class Game{
         db = FIRDatabase.database().reference()
         
         // read locations from db
-        _refHandle = self.db.child("locations").observe(.value, with: { [weak self] (snapshot) -> Void in
+
+        _refHandle = self.db.child("game").observe(.value, with: { [weak self] (snapshot) -> Void in
             guard let strongSelf = self else {return}
             strongSelf.locationsSnapshot = snapshot
-            })
-        
-        self.db.child("profile").observe(.value, with: { [weak self] (snapshot) -> Void in
-            guard let strongSelf2 = self else {return}
-            
-            self?.profileSnapshot = snapshot
-            })
-        
-        self.db.child("game").child(gameId).child("players").observe(.value, with: { [weak self] (snapshot) -> Void in
-            guard let strongSelf3 = self else {return}
-            
-            self?.gameSnapshot = snapshot
-            })
-        
-        self.db.child("lobbies").child(gameId).child("players").observe(.value, with: { [weak self] (snapshot) -> Void in
-            guard let strongSelf4 = self else {return}
-            
-            self?.lobbySnapshot = snapshot
-            })
-        
+//            self?.parseLocationsSnapshot(locations: snapshot)
+        })
+
+//
+//        
+//        self.db.child("profile").observe(.value, with: { [weak self] (snapshot) -> Void in
+//            guard let strongSelf2 = self else {return}
+//            
+//            self?.profileSnapshot = snapshot
+//        })
+//        
+//        self.db.child("game").child(gameId).child("players").observe(.value, with: { [weak self] (snapshot) -> Void in
+//            guard let strongSelf3 = self else {return}
+//            
+//            self?.gameSnapshot = snapshot
+//        })
+//        
+//        self.db.child("lobbies").child(gameId).child("players").observe(.value, with: { [weak self] (snapshot) -> Void in
+//            guard let strongSelf4 = self else {return}
+//            
+//            self?.lobbySnapshot = snapshot
+//        })
+//        
+        self.db.child("game").child(gameId).observe(.value, with: { [weak self] (snapshot) -> Void in
+            guard let strongSelf5 = self else {return}
+            strongSelf5.gametopSnapshot = snapshot
+        })
+
 
     }
-    
+
     // parse locations from db, store in array of tuples
-    func parseLocationsSnapshot(locations: FIRDataSnapshot) {
-        
-        
-        // loop through each device and retrieve device id, lat and long, store in locations array
-        for child in locations.children.allObjects as? [FIRDataSnapshot] ?? [] {
-            guard child.key != "(null" else { return }
-            let childId = child.key
-            let childLat = child.childSnapshot(forPath: "lat").value as! Double
-            let childLong = child.childSnapshot(forPath: "long").value as! Double
-        }
-        
-    }
+//    func parseLocationsSnapshot(locations: FIRDataSnapshot) {
+//        
+//        
+//        // loop through each device and retrieve device id, lat and long, store in locations array
+//        for child in locations.children.allObjects as? [FIRDataSnapshot] ?? [] {
+//            guard child.key != "(null" else { return }
+//            let childId = child.key
+//            let childLat = child.childSnapshot(forPath: "lat").value as! Double
+//            let childLong = child.childSnapshot(forPath: "long").value as! Double
+//            //print("********* \(childId), \(childLat), \(childLong)")
+//
+//        }
+//        
+//    }
     
     func startGame(){
         gameRunning = true
@@ -95,7 +112,7 @@ public class Game{
             self.gameLoop()
         }
     }
-    
+
     func gameLoop() {
         print("time incremented")
         //TODO: implement function to update game variables
@@ -103,18 +120,18 @@ public class Game{
         // check if game should end
         let currentPlayerCount = getCurrentPlayersCount()
         let currentHidersCount = getCurrentHidersCount()
+        let currentSeekersCount = getCurrentSeekersCount()
         let hostCancelled = checkHostCancelled()
         let outOfTime = checkOutOfTime()
         
-        if (currentPlayerCount <= 1 || currentHidersCount == 0 || outOfTime || hostCancelled){
+        if (currentPlayerCount <= 1 || currentHidersCount == 0 || outOfTime || hostCancelled || currentSeekersCount == 0){
+
             print("end game conditions met, ending game")
             self.gameRunning = false
-        } else {
-            //                    currentTime += 1
-            sleep(1)
+
         }
-        
-        self.loopGuard()
+
+        loopGuard()
     }
     
     func loopGuard(){
@@ -125,7 +142,9 @@ public class Game{
         }
         
         print("out of game")
-        quitGame()
+        DispatchQueue.main.async {
+            self.quitGame()
+        }
     }
     
     
@@ -140,21 +159,63 @@ public class Game{
     
     func getCurrentPlayersCount() -> Int{
         //get value from db
-        return currentPlayers.count;
+        while(gametopSnapshot?.childSnapshot(forPath: "players") == nil){
+            print("couldn't get current players count. trying again")
+            sleep(2)
+        }
+        print("current player count: \(Int((gametopSnapshot?.childSnapshot(forPath: "players").childrenCount)!))")
+        return Int((gametopSnapshot?.childSnapshot(forPath: "players").childrenCount)!)
+//        return 5
     }
+    
     func getCurrentHidersCount() -> Int{
         //get value from db
-        var count = 0;
-        return count;
+        while(gametopSnapshot?.childSnapshot(forPath: "players") == nil){
+            print("couldn't get current hiders count. trying again")
+            sleep(1)
+        }
+        var counter = 0
+        for child in gametopSnapshot?.childSnapshot(forPath: "players").children.allObjects as? [FIRDataSnapshot] ?? [] {
+            if(child.childSnapshot(forPath: "role").value as! String == "hider") {
+                counter += 1
+            }
+        }
+        print("*** hider \(counter)")
+        return counter
+//        return 5
+    }
+    
+    func getCurrentSeekersCount() -> Int {
+        //get value from db
+        while(gametopSnapshot?.childSnapshot(forPath: "players") == nil){
+            print("couldn't get current seekers count. trying again")
+            sleep(1)
+        }
+        var counter = 0
+        for child in gametopSnapshot?.childSnapshot(forPath: "players").children.allObjects as? [FIRDataSnapshot] ?? [] {
+            if(child.childSnapshot(forPath: "role").value as! String == "seeker") {
+                counter += 1
+            }
+        }
+        print("*** seeker \(counter)")
+        return counter;
+//        return 5
     }
     
     func checkHostCancelled() -> Bool{
         //return value from db
-        return true
+        while(gametopSnapshot?.value == nil){
+            print("couldn't get if host cancelled. trying again")
+            sleep(1)
+        }
+        
+        let value = gametopSnapshot?.value as? NSDictionary
+        print("host ended value \(value)")
+        return value?["hostEnded"] as! Bool
     }
     
     func checkOutOfTime() -> Bool{
-        return true
+        return false
     }
     
     func removeSelfFromGameTable(){
@@ -164,7 +225,7 @@ public class Game{
         sleep(1)
         
         let deviceId = UIDevice.current.identifierForVendor!.uuidString
-        db.child("locations").child(deviceId).removeValue()
+        self.db.child("game").child(gameId).child("players").child(deviceId).removeValue()
     }
     
     func removeLobby() {
@@ -172,7 +233,13 @@ public class Game{
     }
     
     func showGameEndView(){
-        
+        print("posting quit game obs")
+        Notifications.postGameEnded(self, gameEnded: true)
+    }
+    
+    func removeObservers(){
+        self.db.removeAllObservers() // will removing all affect other parts of the game?
+//        self.db.child("game").removeAllObservers()
     }
     
     func quitGame() {
@@ -180,7 +247,7 @@ public class Game{
         removeLobby()
         removeSelfFromGameTable()
         showGameEndView()
-        updateProfile(seekerWin: checkSeekerWin())
+//        updateProfile(seekerWin: checkSeekerWin())
     }
     
     //Checks who won game

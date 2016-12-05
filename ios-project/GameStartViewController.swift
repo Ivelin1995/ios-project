@@ -14,6 +14,7 @@ class GameStartViewController: UIViewController {
     @IBOutlet weak var logoImage: UIImageView!
     @IBOutlet weak var autoProgBar: UIProgressView!
     @IBOutlet weak var autoProgLabel: UILabel!
+    var gameId : String!
     var mapPoint1 : CLLocationCoordinate2D?
     var mapPoint2 : CLLocationCoordinate2D?
     var secondCount : Int = 5
@@ -62,22 +63,15 @@ class GameStartViewController: UIViewController {
     
     
     func startMap(){
-        print("start map")
-        print(self.mapPoint1)
-        print(self.mapPoint2)
-        
         performSegue(withIdentifier: "showGameView" , sender: nil)
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        print("prepare")
-        print(self.mapPoint1)
-        print(self.mapPoint2)
         if (segue.identifier == "showGameView") {
             let guest = segue.destination as! GameViewController
             guest.mapPoint1 = self.mapPoint1
             guest.mapPoint2 = self.mapPoint2
-
+            guest.gameId    = self.gameId
         }
     }
     
