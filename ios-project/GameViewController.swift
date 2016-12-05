@@ -80,17 +80,11 @@ class GameViewController: UIViewController, MKMapViewDelegate {
         super.viewDidLoad()
         
         configureDatabase()
-        // TEST MAP
-//        var map : Map = Map(topCorner: MKMapPoint(x: 49.247815, y: -123.004096), botCorner: MKMapPoint(x: 49.254675, y: -122.997617), tileSize: 1)
         
 
         getLobdyNumber()
         
-//        if firstTime {
-//            if owner {
-//                addPowerUp(map: map)
-//            }
-//        }
+
         
                var map : Map = Map(topCorner: MKMapPoint(x: (mapPoint1?.latitude)!, y: (mapPoint1?.longitude)!), botCorner: MKMapPoint(x: (mapPoint2?.latitude)!, y: (mapPoint2?.longitude)!), tileSize: 1)
 
