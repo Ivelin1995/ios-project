@@ -78,7 +78,7 @@ class GameStartViewController: UIViewController {
             let guest = segue.destination as! GameViewController
             guest.mapPoint1 = self.mapPoint1
             guest.mapPoint2 = self.mapPoint2
-
+            guest.gameId    = self.gameId
         }
     }
     

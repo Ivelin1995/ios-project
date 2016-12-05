@@ -339,8 +339,15 @@ class GameViewController: UIViewController, MKMapViewDelegate {
         for child in locations.children.allObjects as? [FIRDataSnapshot] ?? [] {
             guard child.key != "(null" else { return }
             let childId = child.key
-            let childLat = child.childSnapshot(forPath: "lat").value as! Double
-            let childLong = child.childSnapshot(forPath: "long").value as! Double
+            var childLat = 0.0
+            var childLong = 0.0
+            if (child.childSnapshot(forPath: "lat").value as? Double != nil){
+                childLat = child.childSnapshot(forPath: "lat").value as! Double
+            }
+            
+            if (child.childSnapshot(forPath: "long").value as? Double != nil){
+                childLong = child.childSnapshot(forPath: "long").value as! Double
+            }
             
             var playerRole = " "
             
@@ -438,10 +445,12 @@ class GameViewController: UIViewController, MKMapViewDelegate {
                     }
                 }
             }
-            
-            let str = String(format: "%.2f", arguments: [nearestHider])
-
-            nearestHiderLabel.text = "Nearest Hider: " + str + "m"
+            if(nearestHider == 10000000.0){
+                nearestHiderLabel.text = "No hiders left"
+            }else{
+                let str = String(format: "%.2f", arguments: [nearestHider])
+                nearestHiderLabel.text = "Nearest Hider: " + str + "m"
+            }
             
             
             // point arrow to smallest distance pin
