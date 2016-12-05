@@ -480,8 +480,8 @@ class GameViewController: UIViewController, MKMapViewDelegate {
         if(capturable == true){
             for pin in pins{
                 if(pin?.playerId == playerIdToCatch){
-                    let lat = (pin?.coordinate.latitude)! as Double
-                    let long = (pin?.coordinate.longitude)! as Double
+                    //let lat = (pin?.coordinate.latitude)! as Double
+                    //let long = (pin?.coordinate.longitude)! as Double
                     
                     // POSTING TO DB
                     self.db.child("game").child(self.gameId).child("players").child(playerIdToCatch).updateChildValues([
