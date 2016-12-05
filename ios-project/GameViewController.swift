@@ -484,15 +484,15 @@ class GameViewController: UIViewController, MKMapViewDelegate {
                     let long = (pin?.coordinate.longitude)! as Double
                     
                     // POSTING TO DB
-                    self.db.child("game").child(self.gameId).child("players").child(playerIdToCatch).setValue([
-                        "lat": lat, "long": long, "role": "seeker"])
+                    self.db.child("game").child(self.gameId).child("players").child(playerIdToCatch).updateChildValues([
+                        "role": "seeker"])
                 }
             }
         }
     }
     
     deinit {
-        self.db.child("locations").removeObserver(withHandle: _refHandle)
+        //.db.child("locations").removeObserver(withHandle: _refHandle)
     }
     
     func UnoDirections(pointA: MKPointAnnotation, pointB: MKPointAnnotation){
