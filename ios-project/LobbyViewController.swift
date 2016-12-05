@@ -229,26 +229,19 @@ class LobbyViewController: UIViewController, UITableViewDelegate, UITableViewDat
     }
     
     func setLobbyPlayers() {
-        
         self.db.child("lobbies").child(gameId).observeSingleEvent(of: .value, with: { (snapshot) in
             let lobbyPlayers = snapshot.childSnapshot(forPath: "players").value as? NSDictionary
-                
             self.db.child("game").child(self.gameId).child("players").updateChildValues(lobbyPlayers as! [AnyHashable : Any])
             
         })
     }
     
     func hostSetGameTable() {
-        
-        print("*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_")
-        print ("herE")
         self.db.child("game").child(gameId).setValue([
             "duration" : self.gameDuration,
             "hostEnded" : false,
             "hostId" : self.deviceId
             ])
-        
-        print("After HERE")
         self.setLobbyPlayers()
     }
     
@@ -258,7 +251,6 @@ class LobbyViewController: UIViewController, UITableViewDelegate, UITableViewDat
         
         // Create game table entry
         self.hostSetGameTable()
-        
         
         performSegue(withIdentifier: "showLoadScreen" , sender: nil)
     }
