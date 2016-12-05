@@ -26,7 +26,7 @@ class GameViewController: UIViewController, MKMapViewDelegate {
     let locationManager = CLLocationManager()
     var locationUpdatedObserver : AnyObject?
     var myPin  = CustomPointAnnotation()
-     var temppin  = CustomPointAnnotation()
+    var temppin  = CustomPointAnnotation()
     var temppin2  = CustomPointAnnotation()
     var numberOfPower : Int = 10
     //center pin
@@ -42,6 +42,8 @@ class GameViewController: UIViewController, MKMapViewDelegate {
     
     var db: FIRDatabaseReference!
     fileprivate var _refHandle: FIRDatabaseHandle!
+    fileprivate var _powerHandle: FIRDatabaseHandle!
+    fileprivate var _lobdyHandle: FIRDatabaseHandle!
 //    var locationsSnapshot: FIRDataSnapshot!
     var locations: [(id: String, lat: Double, long: Double)] = []
     
@@ -59,20 +61,34 @@ class GameViewController: UIViewController, MKMapViewDelegate {
     var mapRadius = 0.00486
     var path: MKPolyline = MKPolyline()
     
-    // stores power-ups on the map
-    var powerUp = [Int: CLLocationCoordinate2D]()
-
-
+    // stores power-ups on the map   
+    var powerups = [Int: PowerUp]()
+    var type : [String] = ["compass","invisable"]
+    var firstTime : Bool = true
+    var owner : Bool = true
+    var lobdyNumber : String = ""
+    let defaults = UserDefaults.standard
+    var powerPoints = [Int: CLLocationCoordinate2D]()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         configureDatabase()
-        
         // TEST MAP
-        //var map : Map = Map(topCorner: MKMapPoint(x: 49.247815, y: -123.004096), botCorner: MKMapPoint(x: 49.254675, y: -122.997617), tileSize: 1)
+        var map : Map = Map(topCorner: MKMapPoint(x: 49.247815, y: -123.004096), botCorner: MKMapPoint(x: 49.254675, y: -122.997617), tileSize: 1)
         
-        var map : Map = Map(topCorner: MKMapPoint(x: (mapPoint1?.latitude)!, y: (mapPoint1?.longitude)!), botCorner: MKMapPoint(x: (mapPoint2?.latitude)!, y: (mapPoint2?.longitude)!), tileSize: 1)
+
+        getLobdyNumber()
         
+        if firstTime {
+            if owner {
+                addPowerUp(map: map)
+            }
+        }
+        
+        
+//        var map : Map = Map(topCorner: MKMapPoint(x: (mapPoint1?.latitude)!, y: (mapPoint1?.longitude)!), botCorner: MKMapPoint(x: (mapPoint2?.latitude)!, y: (mapPoint2?.longitude)!), tileSize: 1)
+
         self.MapView.delegate = self
       
         // Center map on Map coordinates
@@ -91,55 +107,6 @@ class GameViewController: UIViewController, MKMapViewDelegate {
         
         
         //TODO: Currently hardcoded, so it must be put in a loop once database is set up
-        
-        //1st power up
-        //Get x and y coordinates of corners of the map
-        let rx = map.bottomRightPoint.x
-        let lx = map.topLeftPoint.x
-        let ry = map.bottomRightPoint.y
-        let ly = map.topLeftPoint.y
-        
-        for i in 0 ... numberOfPower{
-            //Generate random coordinate for the powerup
-            let r  = self.randomIn(lx,rx)
-            let l  = self.randomIn(ly,ry)
-            self.tempLocation  = CLLocationCoordinate2D(latitude: r, longitude: l)
-            
-            let diceRoll = Int(arc4random_uniform(2))
-            if(diceRoll == 0){
-                let invsablePower = try! HiderInvisibility(id: i,duration: 30,isActive: true)
-                //Add the power up to the map
-                invsablePower.coordinate = self.tempLocation!
-                self.MapView.addAnnotation(invsablePower)
-
-            
-                //store the id and locations of the PowerUps, it is easier to find out which power up on the map is to be used or removed
-                powerUp[i] = invsablePower.coordinate
-                
-            }else{
-            
-                let compassPower = try! SeekerCompass(id: i,duration: 30,isActive: true)
-                //Add the power up to the map
-                compassPower.coordinate = self.tempLocation!
-                self.MapView.addAnnotation(compassPower)
-                
-                //store the id and locations of the PowerUps, it is easier to find out which power up on the map is to be used or removed
-                powerUp[i] = compassPower.coordinate
-            }
-        
-        }
-        
-        //2nd power up
-        //Get x and y coordinates of corners of the map
-        let rx2 = map.bottomRightPoint.x
-        let lx2 = map.topLeftPoint.x
-        let ry2 = map.bottomRightPoint.y
-        let ly2 = map.topLeftPoint.y
-        
-        //Generate random coordinate for the powerup
-        let r2  = self.randomIn(lx2,rx2)
-        let l2  = self.randomIn(ly2,ry2)
-        self.tempLocation  = CLLocationCoordinate2D(latitude: r2, longitude: l2)
         
         // assign the player to a role, should get this value from lobby somehow
         
@@ -194,7 +161,10 @@ class GameViewController: UIViewController, MKMapViewDelegate {
                 self.db.child("locations").child(self.temppin2.playerId).setValue([
                     "lat": self.lat2, "long": self.long2, "role":self.temppin2.playerRole])
 
+                self.configurePowerUpDatabase()
                 
+                
+                self.searchPowerUp()
             }
         }
         
@@ -204,13 +174,31 @@ class GameViewController: UIViewController, MKMapViewDelegate {
         
 
     }
+    // get lobdy number
+    func getLobdyNumber(){
+        lobdyNumber = defaults.string(forKey: "gameId")!
+        if(defaults.string(forKey: "authorization") == "owner"){
+            owner = true
+            print("==================== owner ===================")
+        }else{
+            owner = false
+        }
     
-    // remove the pin(power up), when it is used or collected by a player, from the map
-    func activePowerUp(id: Int) {
-        let thePowerUp = try! HiderInvisibility(id: id, duration: 30, isActive: false)
-        self.MapView.removeAnnotation(powerUp[id] as! MKAnnotation)
     }
 
+    // remove the pin(power up), when it is used or collected by a player, from the map
+    func activePowerUp(id: Int) {
+        _ = try! HiderInvisibility(id: id, duration: 30, isActive: false)
+        self.MapView.removeAnnotation(powerups[id] as! MKAnnotation)
+        powerups.removeValue(forKey: id)
+        powerPoints.removeValue(forKey: id)
+        self.db.child("powerup").child(lobdyNumber).removeValue()
+        for i in powerPoints{
+            self.db.child("powerup").child(lobdyNumber).child(String(i.key)).setValue([
+                "lat": i.value.latitude, "long": i.value.longitude])
+        }
+        
+    }
     
     func configureDatabase() {
         //init db
@@ -225,6 +213,92 @@ class GameViewController: UIViewController, MKMapViewDelegate {
             
             strongSelf.parseLocationsSnapshot(locations: snapshot)
         })
+        
+        
+    }
+    
+    func configurePowerUpDatabase() {
+        //init db
+        db = FIRDatabase.database().reference()
+        
+        // read locations for power up from db
+        _powerHandle = self.db.child("powerup").child(lobdyNumber).observe(.value, with: { [weak self] (snapshot) -> Void in
+            guard let strongSelf = self else
+            {
+                return
+            }
+            
+            strongSelf.parsePowerUpSnapshot(locations: snapshot)
+        })
+    }
+    
+    
+    // parse power up locations from db, store in array of tuples
+    func parsePowerUpSnapshot(locations: FIRDataSnapshot) {
+        // empty the array
+        // REMOVING ALL THE PINS FROM THE DATABASE FIRST SO WE CAN UPDATE IT
+        for index in self.powerups {
+            self.MapView.removeAnnotation(powerups[index.key] as! MKAnnotation)
+            print("remove " + String(index.key))
+        }
+        self.powerups.removeAll()
+        self.powerPoints.removeAll()
+        // loop through each device and retrieve device id, lat and long, store in locations array
+        for child in locations.children.allObjects as? [FIRDataSnapshot] ?? [] {
+            guard child.key != "(null" else { return }
+            let childId = child.key
+            let childLat = child.childSnapshot(forPath: "lat").value as! Double
+            let childLong = child.childSnapshot(forPath: "long").value as! Double
+            let childtype = child.childSnapshot(forPath: "type").value as! String
+            var temp = CLLocationCoordinate2D()
+            temp.latitude = childLat
+            temp.longitude = childLong
+            
+            
+            if(childtype == type[1]){
+                let invsablePower = try! HiderInvisibility(id: Int(childId)!,duration: 30,isActive: true)
+                //Add the power up to the map
+                invsablePower.coordinate = temp
+                //store the id and locations of the PowerUps, it is easier to find out which power up on the map is to be used or removed
+                self.MapView.addAnnotation(invsablePower)
+                print("add invisale " + childId)
+                self.powerups[Int(childId)!] = invsablePower
+                self.powerPoints[Int(childId)!] = invsablePower.coordinate
+            }else{
+                
+                let compassPower = try! SeekerCompass(id: Int(childId)!,duration: 30,isActive: true)
+                //Add the power up to the map
+                compassPower.coordinate = temp
+                //store the id and locations of the PowerUps, it is easier to find out which power up on the map is to be used or removed
+                self.MapView.addAnnotation(compassPower)
+                print("add compass " + childId)
+                self.powerups[Int(childId)!] = compassPower
+                self.powerPoints[Int(childId)!] = compassPower.coordinate
+            }
+            
+        }
+        
+        //print("***** updated locations array ****** \(self.locations)")
+        
+        // call functions once array of locations is updated
+        
+    }
+    
+    func searchPowerUp(){
+        if(pins.count > 0){
+            let userLoc = CLLocation(latitude: temppin2.coordinate.latitude , longitude: temppin2.coordinate.longitude)
+            if (powerups.count == 0){
+                return
+            }
+            for i in powerPoints{
+                if(userLoc.coordinate.longitude - (i.value.longitude) > -0.004 &&
+                   userLoc.coordinate.longitude - (i.value.longitude) < 0.004 &&
+                   userLoc.coordinate.latitude - (i.value.latitude) > -0.004 &&
+                   userLoc.coordinate.latitude - (i.value.latitude) < 0.004){
+                    activePowerUp(id: i.key)
+                }
+            }
+        }
     }
     
     // parse locations from db, store in array of tuples
@@ -496,6 +570,7 @@ class GameViewController: UIViewController, MKMapViewDelegate {
         }
     }
     
+
     // FOR TESTING GAME CLASS
     override func viewDidAppear(_ animated: Bool) {
         startGame()
@@ -508,11 +583,41 @@ class GameViewController: UIViewController, MKMapViewDelegate {
         let player1 = Player("player1")
         let player2 = Player("player2")
         
-        let game = Game(players: [player1, player2], gameTime: 2)
+        let game = Game(gameTime: 2, isHost: true)
         game.startGame()
         performSegue(withIdentifier: "showGameEndView" , sender: nil)
     }
     // END TESTING GAME CLASS
+
+    func addPowerUp(map: Map){
+        //1st power up
+        //Get x and y coordinates of corners of the map
+        let rx = map.bottomRightPoint.x
+        let lx = map.topLeftPoint.x
+        let ry = map.bottomRightPoint.y
+        let ly = map.topLeftPoint.y
+        db = FIRDatabase.database().reference()
+        
+        for i in 1 ... numberOfPower{
+            //Generate random coordinate for the powerup
+            let lat  = self.randomIn(lx,rx)
+            let long  = self.randomIn(ly,ry)
+            let diceRoll = Int(arc4random_uniform(2))
+            if(diceRoll == 0){
+                self.db.child("powerup").child(lobdyNumber).child(String(i)).setValue([
+                    "lat": lat, "long": long, "type": type[0]])
+
+            
+            }else{
+                self.db.child("powerup").child(lobdyNumber).child(String(i)).setValue([
+                    "lat": lat, "long": long, "type": type[1]])
+
+            }
+        }
+        firstTime = false
+        
+    }
+
 
     /*
     // MARK: - Navigation
