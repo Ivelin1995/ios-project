@@ -260,7 +260,7 @@
                                         <rect key="frame" x="0.0" y="28" width="343" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="Tcf-Va-2og" id="SfZ-hp-mCA">
-                                            <frame key="frameInset" width="343" height="43.5"/>
+                                            <frame key="frameInset" width="343" height="43"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Player Name" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Sax-e9-dW0">
@@ -503,7 +503,7 @@
                                     <navigationItem title="Time" id="6ei-LY-wG1">
                                         <barButtonItem key="leftBarButtonItem" title="State" id="GAl-2q-j7P">
                                             <connections>
-                                                <segue destination="gKl-NX-kLx" kind="showDetail" id="jhp-Ko-eli"/>
+                                                <segue destination="gKl-NX-kLx" kind="showDetail" identifier="gameState" id="jhp-Ko-eli"/>
                                             </connections>
                                         </barButtonItem>
                                     </navigationItem>
@@ -524,6 +524,7 @@
                     </view>
                     <connections>
                         <outlet property="MapView" destination="PEW-54-Rii" id="49f-vw-YhH"/>
+                        <outlet property="NavigationItem" destination="6ei-LY-wG1" id="kJ1-46-HPF"/>
                         <outlet property="captureButton" destination="A0a-A5-bt0" id="PoN-ZW-rg8"/>
                         <segue destination="3q1-ew-01x" kind="show" identifier="showGameEndView" id="YsT-cg-JKI"/>
                     </connections>
@@ -605,15 +606,15 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <tableView clipsSubviews="YES" contentMode="scaleToFill" misplaced="YES" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="twU-A1-UNH">
-                                <frame key="frameInset" minY="231" width="375" height="378"/>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" misplaced="YES" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="24" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="twU-A1-UNH">
+                                <frame key="frameInset" minY="232" width="375" height="377"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <prototypes>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" id="QFJ-LC-Xde">
-                                        <rect key="frame" x="0.0" y="28" width="375" height="44"/>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" rowHeight="24" id="QFJ-LC-Xde">
+                                        <rect key="frame" x="0.0" y="28" width="375" height="24"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="QFJ-LC-Xde" id="Klp-oT-1xV">
-                                            <frame key="frameInset" width="375" height="43.5"/>
+                                            <frame key="frameInset" width="375" height="23"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                         </tableViewCellContentView>
                                     </tableViewCell>
@@ -727,8 +728,8 @@
         <image name="aded68ab-da97-42b6-bac9-bd681f17118b.png" width="200" height="200"/>
     </resources>
     <inferredMetricsTieBreakers>
-        <segue reference="1Ci-4W-ENW"/>
-        <segue reference="YsT-cg-JKI"/>
         <segue reference="WAv-5N-aWo"/>
+        <segue reference="qJg-gT-MR5"/>
+        <segue reference="1Ci-4W-ENW"/>
     </inferredMetricsTieBreakers>
 </document>

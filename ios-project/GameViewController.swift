@@ -19,6 +19,7 @@ extension CGSize{
 
 class GameViewController: UIViewController, MKMapViewDelegate {
 
+    @IBOutlet weak var NavigationItem: UINavigationItem!
     @IBOutlet weak var MapView: MKMapView!
     @IBOutlet weak var captureButton: UIButton!
     
@@ -39,6 +40,9 @@ class GameViewController: UIViewController, MKMapViewDelegate {
     var playerIdToCatch = "unknown"
     var capturable = false
     
+    //set Timer
+    var countDownTimer = Timer()
+    var timerValue = 1200
     
     var db: FIRDatabaseReference!
     fileprivate var _refHandle: FIRDatabaseHandle!
@@ -46,7 +50,7 @@ class GameViewController: UIViewController, MKMapViewDelegate {
     fileprivate var _lobdyHandle: FIRDatabaseHandle!
 //    var locationsSnapshot: FIRDataSnapshot!
     var locations: [(id: String, lat: Double, long: Double)] = []
-    
+    var gameID = "1"
     
     // SAVES ALL THE DEVICE LOCATIONS
     var pins: [CustomPointAnnotation?] = []
@@ -174,6 +178,7 @@ class GameViewController: UIViewController, MKMapViewDelegate {
         
 
     }
+    
     // get lobdy number
     func getLobdyNumber(){
         lobdyNumber = defaults.string(forKey: "gameId")!
@@ -184,6 +189,22 @@ class GameViewController: UIViewController, MKMapViewDelegate {
             owner = false
         }
     
+    }
+    
+    func countDown(){
+        timerValue = timerValue - 1
+        if timerValue > 0 {
+            NavigationItem.title = "Time: " + timeFormatted(totalSeconds: timerValue)
+        }else{
+            print("Timer countdown to 0")
+        }
+    }
+    
+    //Format time
+    func timeFormatted(totalSeconds: Int) -> String {
+        let seconds: Int = totalSeconds % 60
+        let minutes: Int = (totalSeconds / 60) % 60
+        return String(format: "%02d:%02d", minutes, seconds)
     }
 
     // remove the pin(power up), when it is used or collected by a player, from the map
@@ -545,6 +566,13 @@ class GameViewController: UIViewController, MKMapViewDelegate {
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if (segue.identifier == "gameState") {
+            let svc = segue.destination as! GameStateViewController;
+            svc.toPass = gameID
+        }
     }
     
     func convertRectToRegion(rect: MKMapRect) -> MKCoordinateRegion {
