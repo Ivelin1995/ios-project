@@ -206,6 +206,7 @@ class LobbyViewController: UIViewController, UITableViewDelegate, UITableViewDat
             let guest = segue.destination as! GameStartViewController
             guest.mapPoint1 = self.mapCoordinate1
             guest.mapPoint2 = self.mapCoordinate2
+            guest.gameId = self.gameId
         }
     }
     
