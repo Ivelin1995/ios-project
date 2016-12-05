@@ -44,10 +44,10 @@ class GameViewController: UIViewController, MKMapViewDelegate {
 
     //set Timer
     var countDownTimer = Timer()
-    var timerValue = 1200
+    var timerValue = 999
 
     // store the gameId, hardcoded for now
-    var gameId = "alex"
+    var gameId = ""
     
     var gameEndedObserver : AnyObject?
 
@@ -56,7 +56,7 @@ class GameViewController: UIViewController, MKMapViewDelegate {
     fileprivate var _refHandle: FIRDatabaseHandle!
     fileprivate var _powerHandle: FIRDatabaseHandle!
     fileprivate var _lobdyHandle: FIRDatabaseHandle!
-    //var locationsSnapshot: FIRDataSnapshot!
+    var durationSnapshot: FIRDataSnapshot!
     var locations: [(id: String, lat: Double, long: Double)] = []
 
     //var gameID = "1"
@@ -88,10 +88,7 @@ class GameViewController: UIViewController, MKMapViewDelegate {
         super.viewDidLoad()
         
         configureDatabase()
-    
         
-        //Time Update
-        countDownTimer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(countDown), userInfo: nil, repeats: true)
         let map : Map = Map(topCorner: MKMapPoint(x: (mapPoint1?.latitude)!, y: (mapPoint1?.longitude)!), botCorner: MKMapPoint(x: (mapPoint2?.latitude)!, y: (mapPoint2?.longitude)!), tileSize: 1)
 
         self.MapView.delegate = self
@@ -186,7 +183,6 @@ class GameViewController: UIViewController, MKMapViewDelegate {
         
         // add observer for end game signal
         addGameEndObs()
-
     }
     
     // get lobdy number
@@ -206,6 +202,7 @@ class GameViewController: UIViewController, MKMapViewDelegate {
         if timerValue > 0 {
             NavigationItem.title = "Time: " + timeFormatted(totalSeconds: timerValue)
         }else{
+            Notifications.postGameEnded(self, gameEnded: true)
             print("Timer countdown to 0")
         }
     }
@@ -244,23 +241,32 @@ class GameViewController: UIViewController, MKMapViewDelegate {
             
             strongSelf.parseLocationsSnapshot(locations: snapshot)
         })
+        
+        // read locations from db
+        self.db.child("game").child(gameId).child("duration").observe(.value, with: { [weak self] (snapshot) -> Void in
+            guard let strongSelf = self else {return}
+                strongSelf.durationSnapshot = snapshot
+            })
+        
+        
+ 
     }
     
 
     func configurePowerUpDatabase() {
-        //init db
-        db = FIRDatabase.database().reference()
-        
-        // read locations for power up from db
-        _powerHandle = self.db.child("powerup").child(lobdyNumber).observe(.value, with: { [weak self] (snapshot) -> Void in
-            guard let strongSelf = self else
-            {
-                return
-            }
-            
-            strongSelf.parsePowerUpSnapshot(locations: snapshot)
-        })
-        
+//        //init db
+//        db = FIRDatabase.database().reference()
+//        
+//        // read locations for power up from db
+//        _powerHandle = self.db.child("powerup").child(lobdyNumber).observe(.value, with: { [weak self] (snapshot) -> Void in
+//            guard let strongSelf = self else
+//            {
+//                return
+//            }
+//            
+//            strongSelf.parsePowerUpSnapshot(locations: snapshot)
+//        })
+//        
         
     }
     
@@ -637,17 +643,13 @@ class GameViewController: UIViewController, MKMapViewDelegate {
     override func viewDidAppear(_ animated: Bool) {
         startGame()
         
-        // game ended, go to game end view
-//        performSegue(withIdentifier: "showGameEndView" , sender: nil)
+        setTimer()
+        
     }
     
     func startGame(){
-        let player1 = Player("player1")
-        let player2 = Player("player2")
-        
-        let game = Game(gameTime: 2, isHost: true)
+        let game = Game(gameTime: 2, isHost: true, gameId: self.gameId)
         game.startGame()
-//        performSegue(withIdentifier: "showGameEndView" , sender: nil)
     }
     
     func addGameEndObs(){
@@ -696,6 +698,18 @@ class GameViewController: UIViewController, MKMapViewDelegate {
         }
         firstTime = false
         
+    }
+    
+    func setTimer(){
+        
+        while (self.durationSnapshot == nil){
+            print("duration is null")
+            sleep(1)
+        }
+        print("****duration \(self.durationSnapshot.value as! Int))")
+        //Time Update
+        countDownTimer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(countDown), userInfo: nil, repeats: true)
+        timerValue = (self.durationSnapshot.value as! Int) * 60
     }
 
 
