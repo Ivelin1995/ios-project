@@ -276,7 +276,9 @@
                                         <rect key="frame" x="0.0" y="28" width="343" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="Tcf-Va-2og" id="SfZ-hp-mCA">
-                                            <rect key="frame" x="0.0" y="0.0" width="343" height="43"/>
+
+                                            <rect key="frame" x="0.0" y="0.0" width="343" height="43.5"/>
+
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Player Name" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Sax-e9-dW0">
@@ -533,28 +535,74 @@
                                     </navigationItem>
                                 </items>
                             </navigationBar>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="You are" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ie4-BD-Imo">
+                                <rect key="frame" x="0.0" y="64" width="375" height="42"/>
+                                <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="42" id="hdJ-4k-4F3"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Nearest Hider: " textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="wez-Zc-RuA">
+                                <rect key="frame" x="0.0" y="646" width="375" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Hide! The seekers are coming for you" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="tm7-ne-IF8">
+                                <rect key="frame" x="0.0" y="582" width="375" height="85"/>
+                                <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="85" id="b4l-JP-Kmx"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstItem="hgc-r9-buT" firstAttribute="top" secondItem="A0a-A5-bt0" secondAttribute="bottom" constant="8" symbolic="YES" id="Ara-t6-rEy"/>
-                            <constraint firstItem="A0a-A5-bt0" firstAttribute="leading" secondItem="PEW-54-Rii" secondAttribute="leading" id="X1w-7N-4zC"/>
-                            <constraint firstItem="PEW-54-Rii" firstAttribute="top" secondItem="qFu-Wm-ZME" secondAttribute="bottom" id="b0A-k7-rN9"/>
-                            <constraint firstItem="PEW-54-Rii" firstAttribute="leading" secondItem="2qh-qn-3uE" secondAttribute="leading" id="eTT-34-exB"/>
-                            <constraint firstItem="A0a-A5-bt0" firstAttribute="top" secondItem="PEW-54-Rii" secondAttribute="bottom" id="fWx-0O-Cgu"/>
-                            <constraint firstItem="hgc-r9-buT" firstAttribute="top" secondItem="PEW-54-Rii" secondAttribute="bottom" constant="84" id="mjy-Zd-ccY"/>
-                            <constraint firstItem="A0a-A5-bt0" firstAttribute="trailing" secondItem="PEW-54-Rii" secondAttribute="trailing" id="sbw-dt-5Om"/>
-                            <constraint firstAttribute="trailing" secondItem="PEW-54-Rii" secondAttribute="trailing" id="zIf-6M-mq8"/>
+                            <constraint firstItem="xQc-QT-eDC" firstAttribute="top" secondItem="qFu-Wm-ZME" secondAttribute="bottom" id="3SS-ei-KLu"/>
+                            <constraint firstItem="tm7-ne-IF8" firstAttribute="bottom" secondItem="hgc-r9-buT" secondAttribute="top" id="7mM-qg-o6N"/>
+                            <constraint firstItem="ie4-BD-Imo" firstAttribute="trailing" secondItem="xQc-QT-eDC" secondAttribute="trailing" id="D0Q-gB-ABH"/>
+                            <constraint firstItem="wez-Zc-RuA" firstAttribute="leading" secondItem="A0a-A5-bt0" secondAttribute="leading" id="F0l-ke-Wnj"/>
+                            <constraint firstItem="ie4-BD-Imo" firstAttribute="leading" secondItem="PEW-54-Rii" secondAttribute="leading" id="FFn-wr-gyF"/>
+                            <constraint firstAttribute="trailing" secondItem="xQc-QT-eDC" secondAttribute="trailing" id="Hhj-92-dUc"/>
+                            <constraint firstItem="ie4-BD-Imo" firstAttribute="trailing" secondItem="PEW-54-Rii" secondAttribute="trailing" id="Hnp-p2-WaS"/>
+                            <constraint firstItem="hgc-r9-buT" firstAttribute="top" secondItem="PEW-54-Rii" secondAttribute="bottom" constant="84" id="QNr-c8-85g"/>
+                            <constraint firstItem="wez-Zc-RuA" firstAttribute="bottom" secondItem="hgc-r9-buT" secondAttribute="top" id="WL7-Ih-MU6"/>
+                            <constraint firstItem="ie4-BD-Imo" firstAttribute="top" secondItem="xQc-QT-eDC" secondAttribute="bottom" id="WTL-8d-eUb"/>
+                            <constraint firstItem="A0a-A5-bt0" firstAttribute="bottom" secondItem="hgc-r9-buT" secondAttribute="top" id="cV1-Tb-GNx"/>
+                            <constraint firstItem="xQc-QT-eDC" firstAttribute="leading" secondItem="2qh-qn-3uE" secondAttribute="leading" id="jQJ-hn-rnF"/>
+                            <constraint firstItem="A0a-A5-bt0" firstAttribute="trailing" secondItem="PEW-54-Rii" secondAttribute="trailing" id="lwy-Qy-8w3"/>
+                            <constraint firstItem="PEW-54-Rii" firstAttribute="trailing" secondItem="tm7-ne-IF8" secondAttribute="trailing" id="m0Z-6o-INN"/>
+                            <constraint firstItem="A0a-A5-bt0" firstAttribute="top" secondItem="PEW-54-Rii" secondAttribute="bottom" id="mRd-qT-jYy"/>
+                            <constraint firstItem="PEW-54-Rii" firstAttribute="top" secondItem="xQc-QT-eDC" secondAttribute="bottom" constant="39" id="p6w-U4-auy"/>
+                            <constraint firstItem="ie4-BD-Imo" firstAttribute="leading" secondItem="xQc-QT-eDC" secondAttribute="leading" id="pMB-Jf-HpP"/>
+                            <constraint firstItem="wez-Zc-RuA" firstAttribute="trailing" secondItem="A0a-A5-bt0" secondAttribute="trailing" id="ptg-jA-qBz"/>
+                            <constraint firstItem="A0a-A5-bt0" firstAttribute="leading" secondItem="PEW-54-Rii" secondAttribute="leading" id="uQL-g9-G7c"/>
+                            <constraint firstItem="PEW-54-Rii" firstAttribute="leading" secondItem="tm7-ne-IF8" secondAttribute="leading" id="zA2-b2-lmf"/>
                         </constraints>
+                        <variation key="default">
+                            <mask key="subviews">
+                                <exclude reference="tm7-ne-IF8"/>
+                            </mask>
+                        </variation>
                     </view>
                     <connections>
                         <outlet property="MapView" destination="PEW-54-Rii" id="49f-vw-YhH"/>
                         <outlet property="captureButton" destination="A0a-A5-bt0" id="PoN-ZW-rg8"/>
+                        <outlet property="hiderLabel" destination="tm7-ne-IF8" id="agR-WV-UJf"/>
+                        <outlet property="nearestHiderLabel" destination="wez-Zc-RuA" id="Y8l-q6-5gj"/>
+                        <outlet property="roleLabel" destination="ie4-BD-Imo" id="SlQ-f7-PZC"/>
                         <segue destination="3q1-ew-01x" kind="show" identifier="showGameEndView" id="YsT-cg-JKI"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dwB-Rd-l0b" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="78" y="802"/>
+            <point key="canvasLocation" x="77.599999999999994" y="801.94902548725645"/>
         </scene>
         <!--Game State View Controller-->
         <scene sceneID="Yik-f5-lke">
