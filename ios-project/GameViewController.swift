@@ -176,11 +176,7 @@ class GameViewController: UIViewController, MKMapViewDelegate {
                 // POSTING TO DB
                 self.db.child("game").child(self.gameId).child("players").child(self.temppin2.playerId).updateChildValues([
                     "lat": self.lat2, "long": self.long2, "role":self.temppin2.playerRole])
-
-//                self.configurePowerUpDatabase()
-//                
-//                
-//                self.searchPowerUp()
+                
             }
         }
         

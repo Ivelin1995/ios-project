@@ -86,13 +86,11 @@ class LobbyViewController: UIViewController, UITableViewDelegate, UITableViewDat
         
         //username: data.childSnapshot(forPath: "username").value as! String,
         GameIDLabel.text = "Game ID " + gameId
-        var tmp = self.db.child("lobbies").child(gameId).observe(.value, with: { [weak self] (snapshot) -> Void in
+        self.db.child("lobbies").child(gameId).observe(.value, with: { [weak self] (snapshot) -> Void in
             guard let strongSelf = self else { return }
             //            strongSelf.locationsSnapshot = snapshot
             strongSelf.parseDevicesForHost(devices: snapshot)
         })
-        // retrieve values 
-        // var lobby = self.db.child("lobbies").child(gameId)
         
 
     }
@@ -300,8 +298,6 @@ class LobbyViewController: UIViewController, UITableViewDelegate, UITableViewDat
             ]
         ])
         self.db.child("lobbies").child(gameId).updateChildValues(["gameStart" : true])
-        
-        performSegue(withIdentifier: "showLoadScreen" , sender: nil)
     }
 
     
