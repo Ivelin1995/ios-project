@@ -25,6 +25,9 @@ class LobbyViewController: UIViewController, UITableViewDelegate, UITableViewDat
     
     @IBOutlet weak var plusButton: UIButton!
     
+    @IBOutlet weak var gameStartButton: UIButton!
+    
+    
     fileprivate var db: FIRDatabaseReference!
     fileprivate var _refHandle: FIRDatabaseHandle!   // not observing anything
     fileprivate var gameStartObserver : FIRDatabaseHandle!
@@ -107,8 +110,12 @@ class LobbyViewController: UIViewController, UITableViewDelegate, UITableViewDat
             HostSettingsButton.isHidden = true
             minusButton.isHidden = true
             plusButton.isHidden = true
+            gameStartButton.isHidden = true
         }
-        
+        DispatchQueue.main.async{
+            self.tableView.reloadData()
+        }
+
     }
 
     
@@ -131,8 +138,7 @@ class LobbyViewController: UIViewController, UITableViewDelegate, UITableViewDat
             // Update the table datasource
             editOrAddPlayerList(user)
         }
-        
-        self.tableView.reloadData()
+
 
     }
     
@@ -193,7 +199,9 @@ class LobbyViewController: UIViewController, UITableViewDelegate, UITableViewDat
         
         cell.lobbyController = self
         cell.lobbyUser = players[indexPath.row]
-        
+        if(players[indexPath.row].id == hostId){
+            cell.isHost = true
+        }
         return cell
     }
 
@@ -262,6 +270,23 @@ class LobbyViewController: UIViewController, UITableViewDelegate, UITableViewDat
     
     
     @IBAction func startGameListener(_ sender: Any) {
+        
+        for p in players{
+            if(p.isReady == false){
+                let alert = UIAlertController(title: "Can't start game!", message: "Not all players are ready.", preferredStyle: UIAlertControllerStyle.alert)
+                alert.addAction(UIAlertAction(title: "Back", style: .default))
+                self.present(alert, animated: true, completion: nil)
+                return
+            }
+        }
+        
+        if(mapCoordinate1?.latitude == nil && mapCoordinate1?.longitude == nil && mapCoordinate2?.latitude == nil && mapCoordinate2?.longitude == nil){
+            let alert = UIAlertController(title: "Can't start game!", message: "No map bounds have been selected.", preferredStyle: UIAlertControllerStyle.alert)
+            alert.addAction(UIAlertAction(title: "Back", style: .default))
+            self.present(alert, animated: true, completion: nil)
+            return
+        }
+        
         self.db.child("lobbies").child(gameId).child("coords").updateChildValues([
             "point1" : [
                 "lat"   : self.mapCoordinate1!.latitude,
@@ -298,12 +323,14 @@ class LobbyUser {
     var username : String
     var isReady : Bool
     var role : String
+    var isHostSet: Bool
     
     init(id: String, username: String, ready: Bool, seeker: String) {
         self.id = id
         self.username = username
         self.isReady = ready
         self.role = seeker
+        self.isHostSet = false
     }
     
     class func MakeFromFIRObject(data: FIRDataSnapshot) -> LobbyUser {
@@ -325,9 +352,14 @@ class LobbyPlayerCell: UITableViewCell {
     
     var lobbyController : LobbyViewController?
     
+    var isHost : Bool?
+    
     var lobbyUser : LobbyUser? {
         didSet {
             playerNameLabel.text = lobbyUser?.username
+            if(isHost == true){
+                playerNameLabel.text = (lobbyUser?.username)! + " [H]"
+            }
             playerReadySwitch.isOn = (lobbyUser?.isReady)!
             let role = (lobbyUser?.role.uppercased() == "SEEKER") ? "S" : "H"
             playerRoleButton.setTitle(role, for: .normal)
