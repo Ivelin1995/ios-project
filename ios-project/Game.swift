@@ -54,11 +54,13 @@ public class Game{
         db = FIRDatabase.database().reference()
         
         // read locations from db
+
         _refHandle = self.db.child("game").observe(.value, with: { [weak self] (snapshot) -> Void in
             guard let strongSelf = self else {return}
             strongSelf.locationsSnapshot = snapshot
-            self?.parseLocationsSnapshot(locations: snapshot)
+//            self?.parseLocationsSnapshot(locations: snapshot)
         })
+
 
         
         self.db.child("profile").observe(.value, with: { [weak self] (snapshot) -> Void in
@@ -165,7 +167,8 @@ public class Game{
         //get value from db
         let playersTable = gametopSnapshot?.childSnapshot(forPath: "players")
         print(playersTable?.childrenCount)
-        return Int((playersTable!.childrenCount))
+        return 2
+//        return Int((playersTable!.childrenCount))
 
     }
     func getCurrentHidersCount() -> Int{
@@ -177,7 +180,10 @@ public class Game{
                 counter += 1;
             }
         }
-        return counter;
+
+        return 2
+//        return counter;
+
     }
     
     func getCurrentSeekersCount() -> Int {
@@ -189,18 +195,21 @@ public class Game{
                 counter += 1;
             }
         }
-        return counter;
+        return 2
+//        return counter;
 
     }
     
     func checkHostCancelled() -> Bool{
         //return value from db
-        return gametopSnapshot?.value(forKey: "hostEnded") as! Bool
+//        return gametopSnapshot?.value(forKey: "hostEnded") as! Bool
+        return false
 
     }
     
     func checkOutOfTime() -> Bool{
-        return true
+//        return true
+        return false
     }
     
     func removeSelfFromGameTable(){
@@ -218,7 +227,8 @@ public class Game{
     }
     
     func showGameEndView(){
-        
+        print("posting quit game obs")
+        Notifications.postGameEnded(self, gameEnded: true)
     }
     
     func quitGame() {
