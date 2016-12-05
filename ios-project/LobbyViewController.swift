@@ -25,6 +25,9 @@ class LobbyViewController: UIViewController, UITableViewDelegate, UITableViewDat
     
     @IBOutlet weak var plusButton: UIButton!
     
+    @IBOutlet weak var gameStartButton: UIButton!
+    
+    
     fileprivate var db: FIRDatabaseReference!
     fileprivate var _refHandle: FIRDatabaseHandle!   // not observing anything
     fileprivate var gameStartObserver : FIRDatabaseHandle!
@@ -107,8 +110,12 @@ class LobbyViewController: UIViewController, UITableViewDelegate, UITableViewDat
             HostSettingsButton.isHidden = true
             minusButton.isHidden = true
             plusButton.isHidden = true
+            gameStartButton.isHidden = true
         }
-        
+        DispatchQueue.main.async{
+            self.tableView.reloadData()
+        }
+
     }
 
     
@@ -131,8 +138,7 @@ class LobbyViewController: UIViewController, UITableViewDelegate, UITableViewDat
             // Update the table datasource
             editOrAddPlayerList(user)
         }
-        
-        self.tableView.reloadData()
+
 
     }
     
@@ -176,7 +182,7 @@ class LobbyViewController: UIViewController, UITableViewDelegate, UITableViewDat
     }
 
     deinit {
-       // self.db.child("lobbies").child(gameId).removeObserver(withHandle: _refHandle)
+//        self.db.child("lobbies").child(gameId).removeAllObservers()
     }
     
     
@@ -193,7 +199,9 @@ class LobbyViewController: UIViewController, UITableViewDelegate, UITableViewDat
         
         cell.lobbyController = self
         cell.lobbyUser = players[indexPath.row]
-        
+        if(players[indexPath.row].id == hostId){
+            cell.isHost = true
+        }
         return cell
     }
 
@@ -206,27 +214,56 @@ class LobbyViewController: UIViewController, UITableViewDelegate, UITableViewDat
             let guest = segue.destination as! GameStartViewController
             guest.mapPoint1 = self.mapCoordinate1
             guest.mapPoint2 = self.mapCoordinate2
+            guest.gameId = self.gameId
+            self.db.child("lobbies").child(gameId).removeObserver(withHandle: _refHandle)
         }
     }
     
-    func gameStart() {
-        
+    func hostSetPoint() {
+        // update coords in lobby table
         self.db.child("lobbies").child(gameId).child("coords").observeSingleEvent(of: .value, with: { (snapshot) in
             let point1 = snapshot.childSnapshot(forPath: "point1").value as? NSDictionary
             let point2 = snapshot.childSnapshot(forPath: "point2").value as? NSDictionary
             print("____ \n In gameStart() setting coordinates \n ____")
             if point1 != nil && point2 != nil {
-                let p1Lat = point1?["lat"] as! Double 
+                let p1Lat = point1?["lat"] as! Double
                 let p1Long = point1?["long"] as! Double
                 let p2Lat = point2?["lat"] as! Double
-                let p2Long = point2?["long"] as! Double 
+                let p2Long = point2?["long"] as! Double
                 // set client coords to what the DB has
                 self.mapCoordinate1 = CLLocationCoordinate2DMake(p1Lat, p1Long)
                 self.mapCoordinate2 = CLLocationCoordinate2DMake(p2Lat, p2Long)
+                self.hostSetGameTable()
             }
- 
+            
         })
-        performSegue(withIdentifier: "showLoadScreen" , sender: nil)
+    }
+    
+    func setLobbyPlayers() {
+        self.db.child("lobbies").child(gameId).observeSingleEvent(of: .value, with: { (snapshot) in
+            let lobbyPlayers = snapshot.childSnapshot(forPath: "players").value as? NSDictionary
+            self.db.child("game").child(self.gameId).child("players").updateChildValues(lobbyPlayers as! [AnyHashable : Any])
+            self.performSegue(withIdentifier: "showLoadScreen" , sender: nil)
+        })
+    }
+    
+    func hostSetGameTable() {
+        self.db.child("game").child(gameId).setValue([
+            "duration" : self.gameDuration,
+            "hostEnded" : false,
+            "hostId" : self.deviceId
+            ])
+        self.setLobbyPlayers()
+    }
+    
+    func gameStart() {
+        // update coords in lobby table
+        self.hostSetPoint()
+        
+        // Create game table entry
+        //self.hostSetGameTable()
+        
+        
     }
     
     func startMap(){
@@ -235,14 +272,31 @@ class LobbyViewController: UIViewController, UITableViewDelegate, UITableViewDat
     
     
     @IBAction func startGameListener(_ sender: Any) {
+        
+        for p in players{
+            if(p.isReady == false){
+                let alert = UIAlertController(title: "Can't start game!", message: "Not all players are ready.", preferredStyle: UIAlertControllerStyle.alert)
+                alert.addAction(UIAlertAction(title: "Back", style: .default))
+                self.present(alert, animated: true, completion: nil)
+                return
+            }
+        }
+        
+        if(mapCoordinate1?.latitude == nil && mapCoordinate1?.longitude == nil && mapCoordinate2?.latitude == nil && mapCoordinate2?.longitude == nil){
+            let alert = UIAlertController(title: "Can't start game!", message: "No map bounds have been selected.", preferredStyle: UIAlertControllerStyle.alert)
+            alert.addAction(UIAlertAction(title: "Back", style: .default))
+            self.present(alert, animated: true, completion: nil)
+            return
+        }
+        
         self.db.child("lobbies").child(gameId).child("coords").updateChildValues([
             "point1" : [
-                "lat"   : self.mapCoordinate1?.latitude,
-                "long"  : self.mapCoordinate1?.longitude
+                "lat"   : self.mapCoordinate1!.latitude,
+                "long"  : self.mapCoordinate1!.longitude
             ],
             "point2" : [
-                "lat"   : self.mapCoordinate2?.latitude,
-                "long"  : self.mapCoordinate2?.longitude
+                "lat"   : self.mapCoordinate2!.latitude,
+                "long"  : self.mapCoordinate2!.longitude
             ]
         ])
         self.db.child("lobbies").child(gameId).updateChildValues(["gameStart" : true])
@@ -271,12 +325,14 @@ class LobbyUser {
     var username : String
     var isReady : Bool
     var role : String
+    var isHostSet: Bool
     
     init(id: String, username: String, ready: Bool, seeker: String) {
         self.id = id
         self.username = username
         self.isReady = ready
         self.role = seeker
+        self.isHostSet = false
     }
     
     class func MakeFromFIRObject(data: FIRDataSnapshot) -> LobbyUser {
@@ -298,9 +354,14 @@ class LobbyPlayerCell: UITableViewCell {
     
     var lobbyController : LobbyViewController?
     
+    var isHost : Bool?
+    
     var lobbyUser : LobbyUser? {
         didSet {
             playerNameLabel.text = lobbyUser?.username
+            if(isHost == true){
+                playerNameLabel.text = (lobbyUser?.username)! + " [H]"
+            }
             playerReadySwitch.isOn = (lobbyUser?.isReady)!
             let role = (lobbyUser?.role.uppercased() == "SEEKER") ? "S" : "H"
             playerRoleButton.setTitle(role, for: .normal)

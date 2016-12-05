@@ -5,6 +5,7 @@
 //  Created by Jason Cheung on 2016-11-04.
 //  Copyright © 2016 Manjot. All rights reserved.
 //
+
 import UIKit
 import MapKit
 
@@ -17,7 +18,7 @@ extension CGSize{
 }
 
 class GameViewController: UIViewController, MKMapViewDelegate {
-    
+
     @IBOutlet weak var NavigationItem: UINavigationItem!
     @IBOutlet weak var MapView: MKMapView!
     @IBOutlet weak var captureButton: UIButton!
@@ -40,16 +41,16 @@ class GameViewController: UIViewController, MKMapViewDelegate {
     
     var playerIdToCatch = "unknown"
     var capturable = false
-    
+
     //set Timer
     var countDownTimer = Timer()
     var timerValue = 1200
-    
+
     // store the gameId, hardcoded for now
     var gameId = "alex"
     
     var gameEndedObserver : AnyObject?
-    
+
     var db: FIRDatabaseReference!
     fileprivate var _gameHandle: FIRDatabaseHandle!
     fileprivate var _refHandle: FIRDatabaseHandle!
@@ -57,8 +58,9 @@ class GameViewController: UIViewController, MKMapViewDelegate {
     fileprivate var _lobdyHandle: FIRDatabaseHandle!
     //var locationsSnapshot: FIRDataSnapshot!
     var locations: [(id: String, lat: Double, long: Double)] = []
-    
+
     //var gameID = "1"
+
     
     // SAVES ALL THE DEVICE LOCATIONS
     var pins: [CustomPointAnnotation?] = []
@@ -73,7 +75,7 @@ class GameViewController: UIViewController, MKMapViewDelegate {
     var mapRadius = 0.00486
     var path: MKPolyline = MKPolyline()
     
-    // stores power-ups on the map
+    // stores power-ups on the map   
     var powerups = [Int: PowerUp]()
     var type : [String] = ["compass","invisable"]
     var firstTime : Bool = true
@@ -86,17 +88,14 @@ class GameViewController: UIViewController, MKMapViewDelegate {
         super.viewDidLoad()
         
         configureDatabase()
+    
         
-        
-        getLobdyNumber()
-        
-        //Time update
+        //Time Update
         countDownTimer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(countDown), userInfo: nil, repeats: true)
-        
-        var map : Map = Map(topCorner: MKMapPoint(x: (mapPoint1?.latitude)!, y: (mapPoint1?.longitude)!), botCorner: MKMapPoint(x: (mapPoint2?.latitude)!, y: (mapPoint2?.longitude)!), tileSize: 1)
-        
+        let map : Map = Map(topCorner: MKMapPoint(x: (mapPoint1?.latitude)!, y: (mapPoint1?.longitude)!), botCorner: MKMapPoint(x: (mapPoint2?.latitude)!, y: (mapPoint2?.longitude)!), tileSize: 1)
+
         self.MapView.delegate = self
-        
+      
         // Center map on Map coordinates
         MapView.setRegion(convertRectToRegion(rect: map.mapActual), animated: true)
         
@@ -112,7 +111,9 @@ class GameViewController: UIViewController, MKMapViewDelegate {
         MapView.addAnnotation(centerPin)
         
         
+        //TODO: Currently hardcoded, so it must be put in a loop once database is set up
         
+
         self.myPin.playerId   = self.deviceId
         self.myPin.playerRole = "unknown"
         
@@ -162,34 +163,34 @@ class GameViewController: UIViewController, MKMapViewDelegate {
                     self.lat2 = location.coordinate.latitude
                     self.long2 = location.coordinate.longitude - 0.0015
                 }
-                
+
                 // move the pin slowly to the right
                 self.long2 = self.long2 + 0.0001
-                
+
                 // display second pin
                 self.MapView.removeAnnotation(self.temppin2)
                 self.tempLocation  = CLLocationCoordinate2D(latitude: self.lat2, longitude: self.long2)
                 self.temppin2.coordinate = self.tempLocation!
-                
+
                 
                 // POSTING TO DB
                 self.db.child("game").child(self.gameId).child("players").child(self.temppin2.playerId).updateChildValues([
                     "lat": self.lat2, "long": self.long2, "role":self.temppin2.playerRole])
-                
-                //                self.configurePowerUpDatabase()
-                //
-                //
-                //                self.searchPowerUp()
+
+//                self.configurePowerUpDatabase()
+//                
+//                
+//                self.searchPowerUp()
             }
         }
         
         
-        //this sends the request to start fetching the location
+         //this sends the request to start fetching the location
         Notifications.postGpsToggled(self, toggle: true)
         
         // add observer for end game signal
         addGameEndObs()
-        
+
     }
     
     // get lobdy number
@@ -201,10 +202,9 @@ class GameViewController: UIViewController, MKMapViewDelegate {
         }else{
             owner = false
         }
-        
+    
     }
     
-    //CountDown Timer
     func countDown(){
         timerValue = timerValue - 1
         if timerValue > 0 {
@@ -220,7 +220,7 @@ class GameViewController: UIViewController, MKMapViewDelegate {
         let minutes: Int = (totalSeconds / 60) % 60
         return String(format: "%02d:%02d", minutes, seconds)
     }
-    
+
     // remove the pin(power up), when it is used or collected by a player, from the map
     func activePowerUp(id: Int) {
         _ = try! HiderInvisibility(id: id, duration: 30, isActive: false)
@@ -247,10 +247,10 @@ class GameViewController: UIViewController, MKMapViewDelegate {
             }
             
             strongSelf.parseLocationsSnapshot(locations: snapshot)
-            })
+        })
     }
     
-    
+
     func configurePowerUpDatabase() {
         //init db
         db = FIRDatabase.database().reference()
@@ -263,7 +263,7 @@ class GameViewController: UIViewController, MKMapViewDelegate {
             }
             
             strongSelf.parsePowerUpSnapshot(locations: snapshot)
-            })
+        })
         
         
     }
@@ -328,9 +328,9 @@ class GameViewController: UIViewController, MKMapViewDelegate {
             }
             for i in powerPoints{
                 if(userLoc.coordinate.longitude - (i.value.longitude) > -0.004 &&
-                    userLoc.coordinate.longitude - (i.value.longitude) < 0.004 &&
-                    userLoc.coordinate.latitude - (i.value.latitude) > -0.004 &&
-                    userLoc.coordinate.latitude - (i.value.latitude) < 0.004){
+                   userLoc.coordinate.longitude - (i.value.longitude) < 0.004 &&
+                   userLoc.coordinate.latitude - (i.value.latitude) > -0.004 &&
+                   userLoc.coordinate.latitude - (i.value.latitude) < 0.004){
                     activePowerUp(id: i.key)
                 }
             }
@@ -407,7 +407,7 @@ class GameViewController: UIViewController, MKMapViewDelegate {
         // call functions once array of locations is updated
         
     }
-    
+
     func pointToNearestPin(){
         
         if(pins.count > 0){
@@ -491,10 +491,11 @@ class GameViewController: UIViewController, MKMapViewDelegate {
     
     deinit {
         //.db.child("locations").removeObserver(withHandle: _refHandle)
+
     }
     
     func UnoDirections(pointA: MKPointAnnotation, pointB: MKPointAnnotation){
-        
+
         var coordinates = [CLLocationCoordinate2D]()
         
         let endLat = pointB.coordinate.latitude
@@ -563,7 +564,7 @@ class GameViewController: UIViewController, MKMapViewDelegate {
                 annotationView!.image = self.resizeImage(image: UIImage(named: "Pokeball")!, targetSize: CGSize(30, 30))
             }
         }
-        
+ 
         return annotationView
         
     }
@@ -575,14 +576,14 @@ class GameViewController: UIViewController, MKMapViewDelegate {
         let widthRatio  = targetSize.width  / image.size.width
         let heightRatio = targetSize.height / image.size.height
         
-        
+
         var newSize: CGSize
         if(widthRatio > heightRatio) {
             newSize = CGSize(width: size.width * heightRatio, height: size.height * heightRatio)
         } else {
             newSize = CGSize(width: size.width * widthRatio,  height: size.height * widthRatio)
         }
-        
+
         let rect = CGRect(x: 0, y: 0, width: newSize.width, height: newSize.height)
         
         UIGraphicsBeginImageContextWithOptions(newSize, false, 1.0)
@@ -598,8 +599,8 @@ class GameViewController: UIViewController, MKMapViewDelegate {
         
         
     }
-    
-    
+
+
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
@@ -635,13 +636,13 @@ class GameViewController: UIViewController, MKMapViewDelegate {
         }
     }
     
-    
+
     // FOR TESTING GAME CLASS
     override func viewDidAppear(_ animated: Bool) {
         startGame()
         
         // game ended, go to game end view
-        //        performSegue(withIdentifier: "showGameEndView" , sender: nil)
+//        performSegue(withIdentifier: "showGameEndView" , sender: nil)
     }
     
     func startGame(){
@@ -650,7 +651,7 @@ class GameViewController: UIViewController, MKMapViewDelegate {
         
         let game = Game(gameTime: 2, isHost: true)
         game.startGame()
-        //        performSegue(withIdentifier: "showGameEndView" , sender: nil)
+//        performSegue(withIdentifier: "showGameEndView" , sender: nil)
     }
     
     func addGameEndObs(){
@@ -671,6 +672,7 @@ class GameViewController: UIViewController, MKMapViewDelegate {
         performSegue(withIdentifier: "showGameEndView" , sender: nil)
     }
     // END TESTING GAME CLASS
+
     func addPowerUp(map: Map){
         //1st power up
         //Get x and y coordinates of corners of the map
@@ -688,26 +690,27 @@ class GameViewController: UIViewController, MKMapViewDelegate {
             if(diceRoll == 0){
                 self.db.child("powerup").child(lobdyNumber).child(String(i)).setValue([
                     "lat": lat, "long": long, "type": type[0]])
-                
-                
+
+            
             }else{
                 self.db.child("powerup").child(lobdyNumber).child(String(i)).setValue([
                     "lat": lat, "long": long, "type": type[1]])
-                
+
             }
         }
         firstTime = false
         
     }
-    
-    
+
+
     /*
-     // MARK: - Navigation
-     // In a storyboard-based application, you will often want to do a little preparation before navigation
-     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-     // Get the new view controller using segue.destinationViewController.
-     // Pass the selected object to the new view controller.
-     }
-     */
-    
+    // MARK: - Navigation
+
+    // In a storyboard-based application, you will often want to do a little preparation before navigation
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        // Get the new view controller using segue.destinationViewController.
+        // Pass the selected object to the new view controller.
+    }
+    */
+
 }

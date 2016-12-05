@@ -36,7 +36,7 @@ public class Game{
     fileprivate var _refHandle: FIRDatabaseHandle!
     
     //Testing purposes
-    var gameId : String = "alex";
+    var gameId : String = "1";
     
     //start game
     init(gameTime: Int, isHost: Bool, gameId: String = "1"){
@@ -44,7 +44,7 @@ public class Game{
         //currentPlayers = players
         self.gameTime = gameTime;
         self.isHost = isHost
-        //self.gameId = gameId
+        self.gameId = gameId
 
         configureDatabase()
     }
@@ -54,11 +54,13 @@ public class Game{
         db = FIRDatabase.database().reference()
         
         // read locations from db
+
         _refHandle = self.db.child("game").observe(.value, with: { [weak self] (snapshot) -> Void in
             guard let strongSelf = self else {return}
             strongSelf.locationsSnapshot = snapshot
-            //self?.parseLocationsSnapshot(locations: snapshot)
+//            self?.parseLocationsSnapshot(locations: snapshot)
         })
+
 
         
         self.db.child("profile").observe(.value, with: { [weak self] (snapshot) -> Void in
@@ -78,6 +80,7 @@ public class Game{
             
             self?.lobbySnapshot = snapshot
         })
+        
         self.db.child("game").child(gameId).observe(.value, with: { [weak self] (snapshot) -> Void in
             guard let strongSelf5 = self else {return}
             strongSelf5.gametopSnapshot = snapshot
@@ -162,62 +165,51 @@ public class Game{
     
     
     func getCurrentPlayersCount() -> Int{
-        //print(playersTable?.childrenCount)
-        while(gametopSnapshot?.childSnapshot(forPath: "players") == nil){
-            sleep(2)
-        }
-        //print("******** \(gametopSnapshot?.childSnapshot(forPath: "players").childrenCount)")
-        
-        return Int((gametopSnapshot?.childSnapshot(forPath: "players").childrenCount)!)
+        //get value from db
+        let playersTable = gametopSnapshot?.childSnapshot(forPath: "players")
+        print(playersTable?.childrenCount)
+        return 2
+//        return Int((playersTable!.childrenCount))
 
     }
     func getCurrentHidersCount() -> Int{
         //get value from db
-        while(gametopSnapshot?.childSnapshot(forPath: "players") == nil){
-            sleep(1)
-        }
-        //  		print("******** \(gametopSnapshot?.childSnapshot(forPath: "players").childrenCount)")
+        let playersTable = gametopSnapshot?.childSnapshot(forPath: "players")
         var counter = 0
-        for child in gametopSnapshot?.childSnapshot(forPath: "players").children.allObjects as? [FIRDataSnapshot] ?? [] {
+        for child in playersTable as? [FIRDataSnapshot] ?? [] {
             if(child.childSnapshot(forPath: "role").value as! String == "hider") {
-                counter += 1
+                counter += 1;
             }
         }
-        //print("*** hider \(counter)"
-        return counter
+
+        return 2
+//        return counter;
+
     }
     
     func getCurrentSeekersCount() -> Int {
         //get value from db
-        while(gametopSnapshot?.childSnapshot(forPath: "players") == nil){
-            sleep(1)
-        }
-          		print("******** \(gametopSnapshot?.childSnapshot(forPath: "players").childrenCount)")
+        let playersTable = gametopSnapshot?.childSnapshot(forPath: "players")
         var counter = 0
-        for child in gametopSnapshot?.childSnapshot(forPath: "players").children.allObjects as? [FIRDataSnapshot] ?? [] {
+        for child in playersTable as? [FIRDataSnapshot] ?? [] {
             if(child.childSnapshot(forPath: "role").value as! String == "seeker") {
-                counter += 1
+                counter += 1;
             }
         }
-        //print("*** seeker \(counter)")
-        return counter;
+        return 2
+//        return counter;
+
     }
     
     func checkHostCancelled() -> Bool{
         //return value from db
-        print("hello")
-        while(gametopSnapshot?.value == nil){
-            sleep(1)
-        }
-        
-        let value = gametopSnapshot?.value as? NSDictionary
-        
-        return value?["hostEnded"] as! Bool
+//        return gametopSnapshot?.value(forKey: "hostEnded") as! Bool
+        return false
 
     }
     
     func checkOutOfTime() -> Bool{
-//        return true
+        return false
     }
     
     func removeSelfFromGameTable(){

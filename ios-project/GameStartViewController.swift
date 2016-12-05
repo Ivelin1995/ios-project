@@ -14,6 +14,7 @@ class GameStartViewController: UIViewController {
     @IBOutlet weak var logoImage: UIImageView!
     @IBOutlet weak var autoProgBar: UIProgressView!
     @IBOutlet weak var autoProgLabel: UILabel!
+    var gameId : String!
     var mapPoint1 : CLLocationCoordinate2D?
     var mapPoint2 : CLLocationCoordinate2D?
     var secondCount : Int = 5
@@ -77,7 +78,7 @@ class GameStartViewController: UIViewController {
             let guest = segue.destination as! GameViewController
             guest.mapPoint1 = self.mapPoint1
             guest.mapPoint2 = self.mapPoint2
-
+            guest.gameId    = self.gameId
         }
     }
     
