@@ -23,7 +23,7 @@ class GameStateViewController: UIViewController {
     let notificationCentre = NotificationCenter.default
     let gameId: String = "1"
     var seekersCount = 0
-    var hunterCount = 0
+    var hidersCount = 0
     let deviceId = UIDevice.current.identifierForVendor!.uuidString
     var playerIsHost: Bool = false
     
@@ -43,16 +43,16 @@ class GameStateViewController: UIViewController {
         // init db
         db = FIRDatabase.database().reference()
         
-        // add observer to game db
+        // add observer to game db, get player roles and host deviceId
         _refHandle = self.db.child("game").child(gameId).child("players").observe(.value,
-                                                                                  with: { [weak self] (snapshot) -> Void in
-                                                                                    guard let strongSelf = self else { return }
-                                                                                    strongSelf.showHiders(player: snapshot)
+            with: { [weak self] (snapshot) -> Void in
+            guard let strongSelf = self else { return }
+            strongSelf.showHiders(player: snapshot)
             })
         _refHandlePlayer = self.db.child("game").child(gameId).child("hostId").observe(.value,
-                                                                                       with: { [weak self] (snapshot) -> Void in
-                                                                                        guard let strongSelf = self else { return }
-                                                                                        strongSelf.getPlayerRole(player: snapshot)
+            with: { [weak self] (snapshot) -> Void in
+            let value = snapshot.value as! String
+            self?.getPlayerRole(playerRole: value)
             })
     }
     
@@ -66,25 +66,39 @@ class GameStateViewController: UIViewController {
             if(role == "seeker"){
                 seekersCount += 1
             }else{
-                hunterCount += 1
+                hidersCount += 1
             }
         }
         
         seekerValue.text = String(seekersCount)
-        hiderValue.text = String(hunterCount)
+        hiderValue.text = String(hidersCount)
+        print("---------# of seekers and hiders---------")
+        print("seeker")
         print(seekersCount)
+        print("hider")
+        print(hidersCount)
+        print("-----------------------------------------")
         self.tableView.reloadData()
         
     }
-    func getPlayerRole(player: FIRDataSnapshot) {
-        for child in player.children.allObjects as? [FIRDataSnapshot] ?? [] {
-            if(deviceId == String(describing: child)){
-                playerIsHost = true
-            }
+    
+    //check if player is host and set different text for button
+    func getPlayerRole(playerRole: String) {
+        print("-----------------device id---------------")
+        print(playerRole)
+        print("-----------------------------------------")
+        if(deviceId == playerRole){
+            playerIsHost = true
+            quitButton.setTitle("End Game",for: .normal)
         }
     }
+    
 
     @IBAction func quitGame(_ sender: AnyObject) {
+        if(quitButton.titleLabel!.text == "End Game"){
+            self.db.child("game").child(gameId).child("hostEnded").setValue(true)
+        }else{
+            self.db.child("game").child(gameId).child("players").setValue(true)
+        }
     }
-    
 }

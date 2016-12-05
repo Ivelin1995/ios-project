@@ -68,10 +68,10 @@ class LobbyMapSelectView: UIViewController, MKMapViewDelegate, UIGestureRecogniz
     }
     
     func displayArea(){
-        var p1 = MKMapPointForCoordinate(annotationA.coordinate)
-        var p2 = MKMapPointForCoordinate(annotationB.coordinate)
-        var p3 = MKMapPoint(x: p1.x, y: p2.y)
-        var p4 = MKMapPoint(x: p2.x, y: p1.y)
+        let p1 = MKMapPointForCoordinate(annotationA.coordinate)
+        let p2 = MKMapPointForCoordinate(annotationB.coordinate)
+        let p3 = MKMapPoint(x: p1.x, y: p2.y)
+        let p4 = MKMapPoint(x: p2.x, y: p1.y)
         var points = [MKMapPoint]()
         points.append(p1)
         points.append(p3)

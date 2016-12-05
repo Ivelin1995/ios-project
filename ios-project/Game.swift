@@ -54,11 +54,13 @@ public class Game{
         db = FIRDatabase.database().reference()
         
         // read locations from db
+
         _refHandle = self.db.child("game").observe(.value, with: { [weak self] (snapshot) -> Void in
             guard let strongSelf = self else {return}
             strongSelf.locationsSnapshot = snapshot
 //            self?.parseLocationsSnapshot(locations: snapshot)
         })
+
 
         
         self.db.child("profile").observe(.value, with: { [weak self] (snapshot) -> Void in
@@ -178,8 +180,10 @@ public class Game{
                 counter += 1;
             }
         }
+
         return 2
 //        return counter;
+
     }
     
     func getCurrentSeekersCount() -> Int {
@@ -223,7 +227,8 @@ public class Game{
     }
     
     func showGameEndView(){
-        
+        print("posting quit game obs")
+        Notifications.postGameEnded(self, gameEnded: true)
     }
     
     func quitGame() {

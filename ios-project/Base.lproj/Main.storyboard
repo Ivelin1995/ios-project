@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="11542" systemVersion="15G31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="11542" systemVersion="16B2657" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
@@ -276,7 +276,9 @@
                                         <rect key="frame" x="0.0" y="28" width="343" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="Tcf-Va-2og" id="SfZ-hp-mCA">
+
                                             <rect key="frame" x="0.0" y="0.0" width="343" height="43.5"/>
+
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Player Name" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Sax-e9-dW0">
@@ -371,6 +373,7 @@
                         <outlet property="GameIDLabel" destination="Yxp-rR-hHR" id="48g-c3-zWd"/>
                         <outlet property="HostSettingsButton" destination="ge8-69-zjg" id="FD8-Xc-qPx"/>
                         <outlet property="durationLabel" destination="gO5-e2-Icf" id="hZ5-39-pCn"/>
+                        <outlet property="gameStartButton" destination="Rp6-iT-zuc" id="LoD-YO-V0a"/>
                         <outlet property="minusButton" destination="m12-3v-fVL" id="GqJ-t7-oiQ"/>
                         <outlet property="plusButton" destination="8Tu-3C-hDe" id="Y5v-tq-yZN"/>
                         <outlet property="tableView" destination="HrB-vt-OAY" id="xb6-tw-KOv"/>
@@ -500,11 +503,11 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="PEW-54-Rii">
-                                <rect key="frame" x="0.0" y="103" width="375" height="480"/>
+                            <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" misplaced="YES" mapType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="PEW-54-Rii">
+                                <rect key="frame" x="0.0" y="64" width="375" height="519"/>
                             </mapView>
-                            <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="A0a-A5-bt0">
-                                <rect key="frame" x="0.0" y="583" width="375" height="84"/>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="A0a-A5-bt0">
+                                <rect key="frame" x="0.0" y="583" width="375" height="76"/>
                                 <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="34"/>
                                 <size key="titleShadowOffset" width="1" height="0.0"/>
@@ -519,8 +522,9 @@
                                     <action selector="capturePlayer:" destination="o8B-Cg-Sss" eventType="touchUpInside" id="NHx-TX-hnX"/>
                                 </connections>
                             </button>
-                            <navigationBar contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="xQc-QT-eDC">
+                            <navigationBar contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="xQc-QT-eDC">
                                 <rect key="frame" x="0.0" y="20" width="375" height="44"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
                                 <items>
                                     <navigationItem title="Time" id="6ei-LY-wG1">
                                         <barButtonItem key="leftBarButtonItem" title="State" id="GAl-2q-j7P">
@@ -632,6 +636,7 @@
                                 <state key="normal" title="Quit"/>
                                 <connections>
                                     <action selector="quitGame:" destination="gKl-NX-kLx" eventType="touchUpInside" id="ZA8-Qf-z9E"/>
+                                    <segue destination="3q1-ew-01x" kind="showDetail" id="qJg-gT-MR5"/>
                                 </connections>
                             </button>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="0" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="7Yi-X7-245">
@@ -682,7 +687,7 @@
                                         <rect key="frame" x="0.0" y="28" width="375" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="QFJ-LC-Xde" id="Klp-oT-1xV">
-                                            <rect key="frame" x="0.0" y="0.0" width="375" height="43.5"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="375" height="43"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                         </tableViewCellContentView>
                                     </tableViewCell>
@@ -797,6 +802,7 @@
     </resources>
     <inferredMetricsTieBreakers>
         <segue reference="1Ci-4W-ENW"/>
+        <segue reference="YsT-cg-JKI"/>
         <segue reference="WAv-5N-aWo"/>
     </inferredMetricsTieBreakers>
 </document>

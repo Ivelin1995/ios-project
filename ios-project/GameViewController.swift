@@ -44,6 +44,7 @@ class GameViewController: UIViewController, MKMapViewDelegate {
     // store the gameId, hardcoded for now
     var gameId = "alex"
     
+    var gameEndedObserver : AnyObject?
     
     var db: FIRDatabaseReference!
     fileprivate var _gameHandle: FIRDatabaseHandle!
@@ -188,6 +189,8 @@ class GameViewController: UIViewController, MKMapViewDelegate {
          //this sends the request to start fetching the location
         Notifications.postGpsToggled(self, toggle: true)
         
+        // add observer for end game signal
+        addGameEndObs()
 
     }
     // get lobdy number
@@ -616,6 +619,22 @@ class GameViewController: UIViewController, MKMapViewDelegate {
         let game = Game(gameTime: 2, isHost: true)
         game.startGame()
 //        performSegue(withIdentifier: "showGameEndView" , sender: nil)
+    }
+    
+    func addGameEndObs(){
+        gameEndedObserver = notificationCentre.addObserver(forName: NSNotification.Name(rawValue: Notifications.GameEnded),
+                                                           object: nil,
+                                                           queue: nil)
+        {
+            (note) in
+            let gameEnded = Notifications.getGameEnded(note)
+            print("game ended: \(gameEnded), segue into game end view")
+            self.segueToGameEndView()
+        }
+    }
+    
+    func segueToGameEndView(){
+        performSegue(withIdentifier: "showGameEndView" , sender: nil)
     }
     // END TESTING GAME CLASS
 
