@@ -16,6 +16,8 @@ class Notifications
     static let LocationUpdated = "LocationUpdated"
     static let Message = "Message"
     static let gpsToggled = "gpsToggled"
+    static let GameEnded = "GameEnded"
+    
     
     fileprivate static func post(_ messageName: String!, object: AnyObject?, userInfo: [AnyHashable: Any]? = nil)
     {
@@ -41,7 +43,24 @@ class Notifications
         
         post(Message, object: object, userInfo: userInfo)
     }
-
+    
+    static func postGameEnded(_ object: AnyObject?, gameEnded: Bool!)
+    {
+        let userInfo =
+            [
+                "gameEnded" : gameEnded
+        ]
+        
+        post(GameEnded, object: object, userInfo: userInfo)
+    }
+    
+    static func getGameEnded(_ notification: Notification!) -> Bool?
+    {
+        let gameEnded = notification.userInfo?["gameEnded"] as? Bool
+        
+        return gameEnded
+    }
+    
     static func getLocation(_ notification: Notification!) -> CLLocation?
     {
         let location = notification.userInfo?["location"] as? CLLocation
