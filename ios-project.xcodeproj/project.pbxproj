@@ -50,7 +50,6 @@
 		C50E51281DF212CB00A76C96 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C50E51261DF212CB00A76C96 /* Main.storyboard */; };
 		D735D6B31DB575A300876261 /* TileTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = D735D6B21DB575A300876261 /* TileTest.swift */; };
 		D75C1EE11DF1FAFB00AB8CE8 /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D75C1EE01DF1FAFB00AB8CE8 /* ProfileViewController.swift */; };
-		E47910468DB170DA18D43FE1 /* Pods_ios_project.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 121483E64D7F1A6918FFEDBD /* Pods_ios_project.framework */; };
 		ED6387601DB583E100FEEFC7 /* Seeker.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED63875F1DB583E100FEEFC7 /* Seeker.swift */; };
 		ED6387611DB583E100FEEFC7 /* Seeker.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED63875F1DB583E100FEEFC7 /* Seeker.swift */; };
 		ED6387671DB5844C00FEEFC7 /* Role.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED6387661DB5844C00FEEFC7 /* Role.swift */; };
@@ -140,7 +139,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E47910468DB170DA18D43FE1 /* Pods_ios_project.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

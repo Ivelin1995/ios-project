@@ -92,7 +92,13 @@ class GameViewController: UIViewController, MKMapViewDelegate {
         let map : Map = Map(topCorner: MKMapPoint(x: (mapPoint1?.latitude)!, y: (mapPoint1?.longitude)!), botCorner: MKMapPoint(x: (mapPoint2?.latitude)!, y: (mapPoint2?.longitude)!), tileSize: 1)
 
         self.MapView.delegate = self
-      
+        getLobdyNumber()
+        
+        if firstTime {
+            if owner {
+                addPowerUp(map: map)
+            }
+        }
         // Center map on Map coordinates
         MapView.setRegion(convertRectToRegion(rect: map.mapActual), animated: true)
         
@@ -168,12 +174,16 @@ class GameViewController: UIViewController, MKMapViewDelegate {
                 self.MapView.removeAnnotation(self.temppin2)
                 self.tempLocation  = CLLocationCoordinate2D(latitude: self.lat2, longitude: self.long2)
                 self.temppin2.coordinate = self.tempLocation!
-
                 
                 // POSTING TO DB
                 self.db.child("game").child(self.gameId).child("players").child(self.temppin2.playerId).updateChildValues([
                     "lat": self.lat2, "long": self.long2, "role":self.temppin2.playerRole])
                 
+                // add power up and search it
+                self.configurePowerUpDatabase()
+                
+                self.searchPowerUp()
+
             }
         }
         
@@ -218,14 +228,19 @@ class GameViewController: UIViewController, MKMapViewDelegate {
     func activePowerUp(id: Int) {
         _ = try! HiderInvisibility(id: id, duration: 30, isActive: false)
         self.MapView.removeAnnotation(powerups[id] as! MKAnnotation)
-        powerups.removeValue(forKey: id)
         powerPoints.removeValue(forKey: id)
         self.db.child("powerup").child(lobdyNumber).removeValue()
         for i in powerPoints{
-            self.db.child("powerup").child(lobdyNumber).child(String(i.key)).setValue([
-                "lat": i.value.latitude, "long": i.value.longitude])
+            if(powerups[i.key]?.name == HiderInvisibility.DEFAULT_NAME){
+                self.db.child("powerup").child(lobdyNumber).child(String(i.key)).setValue([
+                    "lat": i.value.latitude, "long": i.value.longitude, "type": type[1]])
+            }else{
+                self.db.child("powerup").child(lobdyNumber).child(String(i.key)).setValue([
+                    "lat": i.value.latitude, "long": i.value.longitude, "type": type[0]])
+            }
+            
         }
-        
+         powerups.removeValue(forKey: id)
     }
     
     func configureDatabase() {
@@ -254,19 +269,19 @@ class GameViewController: UIViewController, MKMapViewDelegate {
     
 
     func configurePowerUpDatabase() {
-//        //init db
-//        db = FIRDatabase.database().reference()
-//        
-//        // read locations for power up from db
-//        _powerHandle = self.db.child("powerup").child(lobdyNumber).observe(.value, with: { [weak self] (snapshot) -> Void in
-//            guard let strongSelf = self else
-//            {
-//                return
-//            }
-//            
-//            strongSelf.parsePowerUpSnapshot(locations: snapshot)
-//        })
-//        
+       //init db
+        db = FIRDatabase.database().reference()
+       
+        // read locations for power up from db
+        _powerHandle = self.db.child("powerup").child(lobdyNumber).observe(.value, with: { [weak self] (snapshot) -> Void in
+            guard let strongSelf = self else
+            {
+                return
+            }
+            
+            strongSelf.parsePowerUpSnapshot(locations: snapshot)
+        })
+        
         
     }
     
