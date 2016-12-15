@@ -111,20 +111,20 @@ class GameStateViewController: UIViewController {
         }else{
             updateEvent = true
             self.db.child("game").child(gameId).child("players").child(deviceId).removeValue()
-            addTotalPlayed()
+//            addTotalPlayed()
         }
         self.db.child("game").removeAllObservers()
     }
     
     //get totalPlayed data from profile and add 1
-    func addTotalPlayed() {
-        _refHandleProfile = self.db.child("profile").child(deviceId).child("totalPlayed").observe(.value,
-          with: { [weak self] (snapshot) -> Void in
-          let value = Int(snapshot.value as! String)! + 1
-          self?.updateData(data: value)
-        })
-        //updateData(data: timePlayed)
-    }
+//    func addTotalPlayed() {
+//        _refHandleProfile = self.db.child("profile").child(deviceId).child("totalPlayed").observe(.value,
+//          with: { [weak self] (snapshot) -> Void in
+//          let value = Int(snapshot.value as! String)! + 1
+//          self?.updateData(data: value)
+//        })
+//        //updateData(data: timePlayed)
+//    }
 
     //update totalPlayed in profile table
     fileprivate func updateData(data: Int){

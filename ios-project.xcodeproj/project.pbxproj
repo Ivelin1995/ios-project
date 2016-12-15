@@ -48,6 +48,7 @@
 		BCE4DF011DC7EC92001E2F34 /* Player.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCE4DEFE1DC7EC92001E2F34 /* Player.swift */; };
 		BCE4DF031DC7ECEC001E2F34 /* PlayerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCE4DF021DC7ECEC001E2F34 /* PlayerTests.swift */; };
 		C50E51281DF212CB00A76C96 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C50E51261DF212CB00A76C96 /* Main.storyboard */; };
+		CD0B80961BADFE828742259E /* Pods_ios_project.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 121483E64D7F1A6918FFEDBD /* Pods_ios_project.framework */; };
 		D735D6B31DB575A300876261 /* TileTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = D735D6B21DB575A300876261 /* TileTest.swift */; };
 		D75C1EE11DF1FAFB00AB8CE8 /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D75C1EE01DF1FAFB00AB8CE8 /* ProfileViewController.swift */; };
 		ED6387601DB583E100FEEFC7 /* Seeker.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED63875F1DB583E100FEEFC7 /* Seeker.swift */; };
@@ -139,6 +140,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CD0B80961BADFE828742259E /* Pods_ios_project.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -371,7 +373,7 @@
 				TargetAttributes = {
 					7A0A33AF1DB16D3000C2F2D1 = {
 						CreatedOnToolsVersion = 8.0;
-						DevelopmentTeam = L5CRFF55A6;
+						DevelopmentTeam = G25BG2CFLN;
 						ProvisioningStyle = Automatic;
 					};
 					7A0A33C31DB16D3100C2F2D1 = {
@@ -464,7 +466,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
 			showEnvVarsInLog = 0;
 		};
 		C4BB0C13D9E6A6E6A43A6DC2 /* [CP] Embed Pods Frameworks */ = {
@@ -686,11 +688,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				DEVELOPMENT_TEAM = L5CRFF55A6;
+				DEVELOPMENT_TEAM = G25BG2CFLN;
 				INFOPLIST_FILE = "ios-project/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = alukonin.ios8;
+				PRODUCT_BUNDLE_IDENTIFIER = bundle.ios;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 3.0;
 			};
@@ -702,11 +704,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				DEVELOPMENT_TEAM = L5CRFF55A6;
+				DEVELOPMENT_TEAM = G25BG2CFLN;
 				INFOPLIST_FILE = "ios-project/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = alukonin.ios8;
+				PRODUCT_BUNDLE_IDENTIFIER = bundle.ios;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 3.0;
 			};

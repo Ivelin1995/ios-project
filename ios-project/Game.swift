@@ -224,8 +224,8 @@ public class Game{
         Notifications.postGpsToggled(self, toggle: false)
         sleep(1)
         
-        let deviceId = UIDevice.current.identifierForVendor!.uuidString
-        self.db.child("game").child(gameId).child("players").child(deviceId).removeValue()
+//        let deviceId = UIDevice.current.identifierForVendor!.uuidString
+//        self.db.child("game").child(gameId).child("players").child(deviceId).removeValue()
     }
     
     func removeLobby() {
