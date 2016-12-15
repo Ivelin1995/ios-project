@@ -160,24 +160,24 @@ class GameViewController: UIViewController, MKMapViewDelegate {
                     }
                 }
             
-                // DEBUG PIN
-                if(self.lat2 == 0.0){
-                    // set second pin somewhere above and to left of center pin
-                    self.lat2 = location.coordinate.latitude
-                    self.long2 = location.coordinate.longitude - 0.0015
-                }
-
-                // move the pin slowly to the right
-                self.long2 = self.long2 + 0.0001
-
-                // display second pin
-                self.MapView.removeAnnotation(self.temppin2)
-                self.tempLocation  = CLLocationCoordinate2D(latitude: self.lat2, longitude: self.long2)
-                self.temppin2.coordinate = self.tempLocation!
-                
-                // POSTING TO DB
-                self.db.child("game").child(self.gameId).child("players").child(self.temppin2.playerId).updateChildValues([
-                    "lat": self.lat2, "long": self.long2, "role":self.temppin2.playerRole])
+//                // DEBUG PIN
+//                if(self.lat2 == 0.0){
+//                    // set second pin somewhere above and to left of center pin
+//                    self.lat2 = location.coordinate.latitude
+//                    self.long2 = location.coordinate.longitude - 0.0015
+//                }
+//
+//                // move the pin slowly to the right
+//                self.long2 = self.long2 + 0.0001
+//
+//                // display second pin
+//                self.MapView.removeAnnotation(self.temppin2)
+//                self.tempLocation  = CLLocationCoordinate2D(latitude: self.lat2, longitude: self.long2)
+//                self.temppin2.coordinate = self.tempLocation!
+//                
+//                // POSTING TO DB
+//                self.db.child("game").child(self.gameId).child("players").child(self.temppin2.playerId).updateChildValues([
+//                    "lat": self.lat2, "long": self.long2, "role":self.temppin2.playerRole])
                 
                 // add power up and search it
                 self.configurePowerUpDatabase()
@@ -433,6 +433,7 @@ class GameViewController: UIViewController, MKMapViewDelegate {
             
             // pin of current smallest distance
             var smallestDistancePin = CustomPointAnnotation()
+            var nearestHiderPin = CustomPointAnnotation()
             var smallestDistance = 10000000.0
             var nearestHider = 10000000.0
             for pin in pins{
@@ -475,6 +476,8 @@ class GameViewController: UIViewController, MKMapViewDelegate {
                 if(self.myPin.playerRole == "seeker" && pin?.playerRole == "hider"){
                     if(nearestHider > distance){
                         nearestHider = distance
+                        nearestHiderPin = pin!
+                        
                     }
                 }
             }
@@ -485,9 +488,11 @@ class GameViewController: UIViewController, MKMapViewDelegate {
                 nearestHiderLabel.text = "Nearest Hider: " + str + "m"
             }
             
+            if (nearestHider != 10000000.0){
+                // point arrow to smallest distance pin
+                self.UnoDirections(pointA: self.myPin, pointB: nearestHiderPin);
+            }
             
-            // point arrow to smallest distance pin
-            self.UnoDirections(pointA: self.myPin, pointB: smallestDistancePin);
         }
     }
     

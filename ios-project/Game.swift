@@ -244,8 +244,8 @@ public class Game{
     
     func quitGame() {
         print("running end game functions")
-        removeLobby()
-        removeSelfFromGameTable()
+//        removeLobby()
+//        removeSelfFromGameTable()
         showGameEndView()
 //        updateProfile(seekerWin: checkSeekerWin())
     }
