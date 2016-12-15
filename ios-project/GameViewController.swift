@@ -121,8 +121,8 @@ class GameViewController: UIViewController, MKMapViewDelegate {
         self.myPin.playerRole = "unknown"
         
         // DEBUG TEMPPIN
-        self.temppin2.playerId = "TESTPIN"
-        self.temppin2.playerRole = "hider"
+//        self.temppin2.playerId = "TESTPIN"
+//        self.temppin2.playerRole = "hider"
         
         locationUpdatedObserver = notificationCentre.addObserver(forName: NSNotification.Name(rawValue: Notifications.LocationUpdated),
                                                                  object: nil,
